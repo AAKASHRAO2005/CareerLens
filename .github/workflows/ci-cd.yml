@@ -1,0 +1,86 @@
+name: CareerLens CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-build:
+    name: Test & Build (Frontend & Backend)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package.json
+            frontend/package.json
+
+      # Backend Checks
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run Backend Vitest Suites (101 tests)
+        run: npm test
+        working-directory: backend
+
+      - name: Build Backend TypeScript
+        run: npm run build
+        working-directory: backend
+
+      # Frontend Checks
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run Frontend Vitest Suites (51 tests)
+        run: npm test
+        working-directory: frontend
+
+      - name: Build Next.js Production Bundle
+        run: npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_APP_ENV: production
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL || 'https://api.careerlens.internal' }}
+
+  # Optional AWS SAM Backend Deployment (Runs if AWS credentials secrets are configured)
+  deploy-backend:
+    name: Deploy AWS Serverless Backend
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && env.HAVE_AWS_SECRETS == 'true'
+    env:
+      HAVE_AWS_SECRETS: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: SAM Build
+        run: sam build --template-file infrastructure/template.yaml
+
+      - name: SAM Deploy
+        run: |
+          sam deploy --no-confirm-changeset \
+            --stack-name careerlens-stack \
+            --capabilities CAPABILITY_IAM \
+            --resolve-s3
