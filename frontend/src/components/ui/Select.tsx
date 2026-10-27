@@ -23,7 +23,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
+            className="block font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant"
           >
             {label}
           </label>
@@ -32,8 +32,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           id={selectId}
           ref={ref}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-rose-500 focus-visible:ring-rose-500",
+            "flex h-10 w-full rounded-lg border border-[#cbd5e1] bg-surface-container-lowest px-3 py-2 font-body-md text-body-md text-on-surface transition-all focus-visible:outline-none focus-visible:border-primary-container focus-visible:ring-1 focus-visible:ring-primary-container disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-error focus-visible:ring-error",
             className
           )}
           aria-invalid={!!error}
@@ -47,7 +47,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {error && (
-          <p id={`${selectId}-error`} className="text-xs text-rose-600 font-medium">
+          <p id={`${selectId}-error`} className="font-label-sm text-label-sm text-error font-medium">
             {error}
           </p>
         )}

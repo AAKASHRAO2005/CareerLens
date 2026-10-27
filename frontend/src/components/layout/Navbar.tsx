@@ -2,90 +2,149 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X, Compass, Plus, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { NAV_ITEMS } from "./Sidebar";
+import { usePathname, useRouter } from "next/navigation";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
+import { useMockData } from "@/features/mock-context";
 import { cn } from "@/lib/utils";
 
 export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { profile, applications, interviews } = useMockData();
 
-  // Find current active item title
-  const activeItem = NAV_ITEMS.find((item) =>
-    item.href === "/dashboard"
-      ? pathname === "/dashboard"
-      : pathname.startsWith(item.href)
-  );
+  const appCount = applications?.length || 18;
+  const upcomingInterviews = interviews?.filter((i) => i.status === "SCHEDULED")?.length || 2;
+
+  const navItems = [
+    { label: "Dashboard", href: "/dashboard", iconName: "space_dashboard" },
+    {
+      label: "Applications",
+      href: "/applications",
+      iconName: "view_kanban",
+      badge: appCount,
+    },
+    { label: "Skill Gap Analyzer", href: "/skill-analyzer", iconName: "insights" },
+    {
+      label: "Interviews",
+      href: "/interviews",
+      iconName: "event_available",
+      badge: `${upcomingInterviews} upcoming`,
+    },
+    { label: "Resumes", href: "/resumes", iconName: "description" },
+    { label: "Profile", href: "/profile", iconName: "person" },
+  ];
+
+  const initials = profile.displayName
+    ? profile.displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "AR";
+
+  const handleSignOut = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("careerlens_auth_session");
+      localStorage.removeItem("careerlens_auth_session");
+    }
+    router.push("/login");
+  };
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur sm:px-6 md:pl-72">
-        <div className="flex items-center gap-3">
-          {/* Mobile hamburger button */}
+      <header className="fixed top-0 left-0 md:left-[260px] right-0 h-16 bg-[#ffffff] border-b border-[#e2e8f0] z-40 flex items-center justify-between px-space-md sm:px-space-xl">
+        {/* Left: Mobile hamburger & Global Search */}
+        <div className="flex items-center gap-space-md flex-1 max-w-xl">
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="inline-flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 md:hidden"
-            aria-label="Toggle Navigation Menu"
+            className="p-1.5 rounded-lg text-outline hover:bg-surface-container hover:text-on-surface md:hidden"
+            aria-label="Toggle navigation menu"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <MaterialIcon name={mobileOpen ? "close" : "menu"} className="text-[22px]" />
           </button>
 
-          <div>
-            <h1 className="text-base font-semibold text-slate-900 sm:text-lg">
-              {activeItem?.label || "CareerLens"}
-            </h1>
+          <div className="flex items-center gap-space-sm w-full max-w-md h-9 px-3 rounded-lg border border-[#cbd5e1] bg-surface-container-lowest text-on-surface-variant focus-within:border-primary-container focus-within:ring-1 focus-within:ring-primary-container transition-all">
+            <MaterialIcon name="search" className="text-[18px] text-outline" />
+            <input
+              type="text"
+              placeholder="Search applications, skills, companies..."
+              className="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant"
+            />
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 font-label-sm text-label-sm text-outline font-semibold bg-surface-container-low border border-outline-variant rounded">
+              ⌘K
+            </kbd>
           </div>
         </div>
 
-        {/* Right action controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Right Action Controls */}
+        <div className="flex items-center gap-space-sm sm:gap-space-md">
+          {/* Season Pill */}
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant text-on-surface-variant font-label-sm text-label-sm">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>MIT Tech Placement 2025</span>
+          </div>
+
+          {/* Quick Add Button */}
           <Link href="/applications/new">
-            <Button size="sm" className="hidden sm:inline-flex">
-              <Plus className="w-4 h-4" />
-              New Application
-            </Button>
+            <button className="h-9 px-3 sm:px-space-md bg-primary-container hover:bg-primary text-on-primary rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer">
+              <MaterialIcon name="add" className="text-[18px]" />
+              <span className="hidden sm:inline">Quick Add</span>
+            </button>
           </Link>
-          <Link href="/login">
-            <Button variant="ghost" size="sm" title="Sign out / switch account">
-              <LogOut className="w-4 h-4 text-slate-500" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </Button>
+
+          {/* Notifications */}
+          <div className="relative">
+            <button
+              aria-label="Notifications"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#cbd5e1] hover:bg-surface-container-low text-on-surface-variant transition-colors relative cursor-pointer"
+            >
+              <MaterialIcon name="notifications" className="text-[20px]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest" />
+            </button>
+          </div>
+
+          <div className="hidden sm:block h-6 w-px bg-[#e2e8f0]" />
+
+          {/* User Avatar */}
+          <Link href="/profile" className="flex items-center">
+            <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary font-bold flex items-center justify-center text-xs ring-1 ring-outline-variant hover:opacity-90 transition-opacity">
+              {initials}
+            </div>
           </Link>
         </div>
       </header>
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden flex">
+        <div className="fixed inset-0 z-50 md:hidden flex">
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative flex w-full max-w-xs flex-1 flex-col bg-white pb-4 pt-5 shadow-xl">
-            <div className="flex items-center justify-between px-6 pb-4 border-b border-slate-100">
+          <div className="relative flex w-full max-w-xs flex-1 flex-col bg-[#f8fafc] pb-4 pt-5 shadow-2xl border-r border-[#e2e8f0]">
+            <div className="flex items-center justify-between px-6 pb-4 border-b border-[#e2e8f0]">
               <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white">
-                  <Compass className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm">
+                  <MaterialIcon name="explore" className="text-[20px]" />
                 </div>
-                <span className="font-bold text-slate-900 text-base">
-                  Career<span className="text-indigo-600">Lens</span>
+                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                  CareerLens
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                className="rounded-lg p-1 text-outline hover:bg-surface-container"
               >
-                <X className="w-5 h-5" />
+                <MaterialIcon name="close" className="text-[20px]" />
               </button>
             </div>
 
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
+              {navItems.map((item) => {
                 const isActive =
                   item.href === "/dashboard"
                     ? pathname === "/dashboard"
@@ -97,26 +156,46 @@ export const Navbar: React.FC = () => {
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
+                      "flex items-center justify-between px-3 py-2.5 font-label-md text-label-md rounded-xl transition-colors",
                       isActive
-                        ? "bg-indigo-50 text-indigo-700 font-semibold"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-surface-container-high text-primary font-semibold"
+                        : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                     )}
                   >
-                    <Icon className="w-4 h-4 text-slate-500" />
-                    {item.label}
+                    <div className="flex items-center gap-3">
+                      <MaterialIcon name={item.iconName} className="text-[20px]" />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="px-4 pt-2">
-              <Link href="/applications/new" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full justify-center">
-                  <Plus className="w-4 h-4" />
-                  New Application
-                </Button>
+            <div className="p-4 border-t border-[#e2e8f0] flex items-center justify-between">
+              <Link
+                href="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary font-bold flex items-center justify-center text-xs">
+                  {initials}
+                </div>
+                <span className="font-label-md text-label-md text-on-surface font-semibold">
+                  {profile.displayName || "Alex Rivera"}
+                </span>
               </Link>
+              <button
+                onClick={handleSignOut}
+                className="p-1 rounded-lg text-outline hover:text-error transition-colors"
+                title="Sign Out"
+              >
+                <MaterialIcon name="logout" className="text-[20px]" />
+              </button>
             </div>
           </div>
         </div>

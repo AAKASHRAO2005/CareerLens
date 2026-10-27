@@ -3,20 +3,8 @@
 import React, { useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Sparkles,
-  Calendar,
-  Trash2,
-  Building2,
-  Plus,
-  AlertCircle,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { STATUS_MAP, formatDate, formatDateTime, ApplicationStatus } from "@/lib/formatters";
 import { useMockData } from "@/features/mock-context";
 
@@ -54,24 +42,24 @@ export default function ApplicationDetailPage({
   if (!application) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
-          <AlertCircle className="w-7 h-7" />
+        <div className="w-14 h-14 rounded-2xl bg-error-container text-error flex items-center justify-center mx-auto">
+          <MaterialIcon name="error" className="text-[28px]" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Application Not Found</h2>
-        <p className="text-xs text-slate-500">
+        <h2 className="font-headline-md text-headline-md text-on-surface">Application Not Found</h2>
+        <p className="font-body-sm text-body-sm text-on-surface-variant">
           The requested job application record does not exist or was deleted.
         </p>
         <Link href="/applications">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-1.5" />
+          <button className="h-9 px-4 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">
             Back to Applications
-          </Button>
+          </button>
         </Link>
       </div>
     );
   }
 
   const statusCfg = STATUS_MAP[application.status as ApplicationStatus] || STATUS_MAP.APPLIED;
+  const companyInitial = application.companyName ? application.companyName.slice(0, 2).toUpperCase() : "CO";
 
   const handleStatusChange = (newStatus: ApplicationStatus) => {
     updateApplication(application.applicationId, { status: newStatus });
@@ -107,315 +95,378 @@ export default function ApplicationDetailPage({
     setInterviewNotes("");
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back and Header Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Link href="/applications">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Applications
-          </Button>
-        </Link>
+  const stages: { id: ApplicationStatus; label: string }[] = [
+    { id: "SAVED", label: "Saved" },
+    { id: "APPLIED", label: "Applied" },
+    { id: "ONLINE_ASSESSMENT", label: "Assessment" },
+    { id: "INTERVIEW", label: "Interview" },
+    { id: "OFFER", label: "Offer" },
+  ];
 
-        <div className="flex items-center gap-2">
-          <Link href={`/skill-analyzer?applicationId=${application.applicationId}`}>
-            <Button size="sm" variant="outline" className="gap-1.5 text-xs text-indigo-700 bg-indigo-50 border-indigo-200 hover:bg-indigo-100">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              Analyze Skills
-            </Button>
+  return (
+    <div className="flex flex-col gap-space-lg w-full">
+      {/* 1. Header Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+        <div className="flex items-center gap-space-md">
+          <Link
+            href="/applications"
+            className="w-9 h-9 rounded-lg border border-[#cbd5e1] hover:bg-surface-container-low flex items-center justify-center text-outline hover:text-on-surface transition-colors"
+          >
+            <MaterialIcon name="arrow_back" className="text-[20px]" />
           </Link>
-          <Button
-            size="sm"
-            variant="outline"
+          <div className="flex items-center gap-space-sm">
+            <div className="w-10 h-10 rounded-xl bg-surface-container text-primary font-bold text-sm flex items-center justify-center shadow-sm">
+              {companyInitial}
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h1 className="font-headline-md text-headline-md text-on-surface font-semibold">
+                  {application.companyName}
+                </h1>
+                <span
+                  className={`font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border ${statusCfg.colorClass}`}
+                >
+                  {statusCfg.label}
+                </span>
+              </div>
+              <span className="font-body-sm text-body-sm text-on-surface-variant">
+                {application.jobTitle}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-space-sm flex-wrap">
+          <Link href={`/skill-analyzer?applicationId=${application.applicationId}`}>
+            <button className="h-9 px-space-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-[#cbd5e1] rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
+              <MaterialIcon name="bolt" className="text-[18px] text-surface-tint" />
+              <span>Skill Match</span>
+            </button>
+          </Link>
+
+          <button
             onClick={() => setIsInterviewModalOpen(true)}
-            className="gap-1.5 text-xs"
+            className="h-9 px-space-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-[#cbd5e1] rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
-            <Calendar className="w-3.5 h-3.5 text-purple-600" />
-            Schedule Round
-          </Button>
-          <Button
-            size="sm"
-            variant="danger"
+            <MaterialIcon name="calendar_today" className="text-[18px] text-secondary" />
+            <span>Schedule Round</span>
+          </button>
+
+          <button
             onClick={handleDelete}
-            className="text-xs"
-            title="Delete Application"
+            className="h-9 px-3 rounded-lg border border-error-container text-error hover:bg-error-container/40 font-label-md text-label-md transition-colors cursor-pointer"
+            title="Delete application"
           >
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
+            <MaterialIcon name="delete" className="text-[18px]" />
+          </button>
         </div>
       </div>
 
-      {/* Main Details Card */}
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <div>
-                <CardTitle className="text-2xl font-bold text-slate-900">
-                  {application.companyName}
-                </CardTitle>
-                <p className="text-sm font-semibold text-slate-700 mt-0.5">
-                  {application.jobTitle}
-                </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  ID: {application.applicationId}
-                </p>
-              </div>
-            </div>
+      {/* 2. Pipeline Stage Trail Selector */}
+      <div className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-sm">
+          <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+            Recruitment Funnel Stage
+          </span>
+          <span className="font-caption text-caption text-outline">
+            Applied: {formatDate(application.applicationDate)}
+          </span>
+        </div>
 
-            {/* Status Selector Dropdown */}
-            <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-1">
-                Stage:
-              </span>
-              <select
-                value={application.status}
-                onChange={(e) => handleStatusChange(e.target.value as ApplicationStatus)}
-                className={`text-xs px-3 py-1.5 rounded-lg font-bold border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${statusCfg.colorClass}`}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+          {stages.map((st, idx) => {
+            const isCurrent = application.status === st.id;
+            return (
+              <button
+                key={st.id}
+                onClick={() => handleStatusChange(st.id)}
+                className={`py-2 px-3 rounded-lg font-label-md text-label-md font-semibold flex items-center justify-between transition-all cursor-pointer border ${
+                  isCurrent
+                    ? "bg-primary text-on-primary border-primary shadow-sm"
+                    : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container border-transparent"
+                }`}
               >
-                <option value="SAVED">Saved</option>
-                <option value="APPLIED">Applied</option>
-                <option value="ONLINE_ASSESSMENT">Assessment</option>
-                <option value="INTERVIEW">Interview</option>
-                <option value="OFFER">Offer</option>
-                <option value="REJECTED">Rejected</option>
-                <option value="WITHDRAWN">Withdrawn</option>
-              </select>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-[11px] opacity-70">{idx + 1}.</span>
+                  <span>{st.label}</span>
+                </span>
+                {isCurrent && <MaterialIcon name="check" className="text-[16px]" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Main 2-Column Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+        {/* Left Column (8 cols): Snapshot, Job Description, Linked Interviews */}
+        <div className="lg:col-span-8 flex flex-col gap-space-lg min-w-0">
+          {/* Position Snapshot Grid */}
+          <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] p-space-xl shadow-sm flex flex-col gap-space-md">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Position Snapshot
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-md">
+              <div className="p-space-md rounded-lg bg-surface-container-low flex flex-col">
+                <span className="font-label-sm text-label-sm text-outline">Office Mode</span>
+                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">
+                  {application.location || "Hybrid"}
+                </span>
+                <span className="font-caption text-caption text-on-surface-variant mt-0.5">
+                  Cambridge, MA
+                </span>
+              </div>
+              <div className="p-space-md rounded-lg bg-surface-container-low flex flex-col">
+                <span className="font-label-sm text-label-sm text-outline">Package / CTC</span>
+                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">
+                  {application.salary || "Competitive"}
+                </span>
+                <span className="font-caption text-caption text-tertiary font-semibold mt-0.5">
+                  Verified Tier 1
+                </span>
+              </div>
+              <div className="p-space-md rounded-lg bg-surface-container-low flex flex-col">
+                <span className="font-label-sm text-label-sm text-outline">Application Date</span>
+                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">
+                  {formatDate(application.applicationDate)}
+                </span>
+                <span className="font-caption text-caption text-primary font-semibold mt-0.5">
+                  Campus Drive
+                </span>
+              </div>
+              <div className="p-space-md rounded-lg bg-surface-container-low flex flex-col">
+                <span className="font-label-sm text-label-sm text-outline">Rounds Recorded</span>
+                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold mt-1">
+                  {linkedInterviews.length}
+                </span>
+                <span className="font-caption text-caption text-outline mt-0.5">In schedule</span>
+              </div>
             </div>
           </div>
-        </CardHeader>
 
-        <CardContent className="space-y-6">
-          {/* Metadata Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs">
-            <div>
-              <span className="font-semibold text-slate-400 uppercase tracking-wider block">
-                Application Date
+          {/* Job Description & Required Skills */}
+          <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div className="flex items-center justify-between pb-1 border-b border-[#e2e8f0]">
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Job Description & Scope
               </span>
-              <span className="text-sm font-semibold text-slate-800">
-                {formatDate(application.applicationDate)}
-              </span>
+              <span className="font-caption text-caption text-outline">MIT-EECS Department Track</span>
             </div>
-            <div>
-              <span className="font-semibold text-slate-400 uppercase tracking-wider block">
-                Record Created
-              </span>
-              <span className="text-sm font-semibold text-slate-800">
-                {formatDateTime(application.createdAt)}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold text-slate-400 uppercase tracking-wider block">
-                Active Interview Rounds
-              </span>
-              <span className="text-sm font-semibold text-slate-800">
-                {linkedInterviews.length} Round{linkedInterviews.length === 1 ? "" : "s"}
-              </span>
-            </div>
-          </div>
 
-          {/* Required Skills */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-                Required Skills ({application.requiredSkills.length})
-              </h4>
-              <Link
-                href={`/skill-analyzer?applicationId=${application.applicationId}`}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Run Gap Analysis
-              </Link>
-            </div>
-            {application.requiredSkills.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">No skills listed for this role.</p>
-            ) : (
+            <p className="font-body-md text-body-md text-on-surface-variant whitespace-pre-wrap leading-relaxed">
+              {application.jobDescription || "No detailed job description supplied for this record."}
+            </p>
+
+            <div className="flex flex-col gap-2 pt-space-sm border-t border-[#e2e8f0]">
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Required Technical Skills
+              </span>
               <div className="flex flex-wrap gap-2">
                 {application.requiredSkills.map((skill) => (
-                  <Badge
+                  <span
                     key={skill}
-                    variant="neutral"
-                    className="py-1 px-3 text-xs font-medium"
+                    className="px-3 py-1 rounded-full bg-surface-container border border-primary-fixed-dim text-primary font-label-sm text-label-sm font-medium"
                   >
                     {skill}
-                  </Badge>
+                  </span>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Job Description */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Job Description
-            </h4>
-            <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200/60 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-sans">
-              {application.jobDescription || "No job description provided."}
             </div>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-                Personal Notes
-              </h4>
+          {/* Interview Timeline for this application */}
+          <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div className="flex items-center justify-between pb-1 border-b border-[#e2e8f0]">
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Interview Rounds & Debriefs
+              </span>
               <button
-                type="button"
-                onClick={() => {
-                  setNotesDraft(application.notes || "");
-                  setIsEditingNotes(!isEditingNotes);
-                }}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-              >
-                {isEditingNotes ? "Cancel" : "Edit Notes"}
-              </button>
-            </div>
-            {isEditingNotes ? (
-              <div className="space-y-2">
-                <textarea
-                  rows={3}
-                  value={notesDraft}
-                  onChange={(e) => setNotesDraft(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 p-3 text-xs focus:ring-2 focus:ring-indigo-500"
-                />
-                <Button size="sm" onClick={handleSaveNotes}>
-                  Save Notes
-                </Button>
-              </div>
-            ) : (
-              <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200/60 text-xs text-slate-700 italic">
-                {application.notes || "No notes recorded yet."}
-              </div>
-            )}
-          </div>
-
-          {/* Linked Interviews Section */}
-          <div className="space-y-3 pt-4 border-t border-slate-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-600" />
-                <h4 className="text-sm font-bold text-slate-900">
-                  Scheduled Interview Rounds
-                </h4>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
                 onClick={() => setIsInterviewModalOpen(true)}
-                className="text-xs"
+                className="font-label-sm text-label-sm text-primary font-semibold hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 mr-1" />
-                Add Round
-              </Button>
+                <MaterialIcon name="add" className="text-[16px]" />
+                <span>Add Round</span>
+              </button>
             </div>
 
             {linkedInterviews.length === 0 ? (
-              <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-500">
-                No interview rounds scheduled for this company yet.
+              <div className="py-6 text-center text-on-surface-variant font-body-sm">
+                No interviews scheduled yet for this application.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-space-sm">
                 {linkedInterviews.map((int) => (
                   <div
                     key={int.interviewId}
-                    className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-space-md rounded-xl bg-surface-container-low border border-[#e2e8f0] flex flex-col gap-1.5"
                   >
-                    <div>
-                      <p className="text-sm font-bold text-slate-800">{int.roundName}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {formatDateTime(int.interviewDate)} &bull; Mode: {int.mode}
-                      </p>
-                      {int.notes && (
-                        <p className="text-xs text-slate-600 mt-1 italic">
-                          Prep notes: {int.notes}
-                        </p>
-                      )}
+                    <div className="flex items-center justify-between">
+                      <span className="font-label-md text-label-md text-on-surface font-semibold">
+                        {int.roundName}
+                      </span>
+                      <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-medium">
+                        {int.mode}
+                      </span>
                     </div>
-                    <Badge variant="purple" size="sm">
-                      {int.mode}
-                    </Badge>
+                    <span className="font-caption text-caption text-primary font-semibold flex items-center gap-1">
+                      <MaterialIcon name="schedule" className="text-[14px]" />
+                      {formatDateTime(int.interviewDate)}
+                    </span>
+                    {int.notes && (
+                      <p className="font-body-sm text-body-sm text-on-surface-variant italic mt-1">
+                        “{int.notes}”
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Modal: Schedule Interview Round */}
+        {/* Right Column (4 cols): Notes & Recruiter Contacts */}
+        <div className="lg:col-span-4 flex flex-col gap-space-lg">
+          <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] p-space-xl shadow-sm flex flex-col gap-space-md">
+            <div className="flex items-center justify-between pb-1 border-b border-[#e2e8f0]">
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Candidate Notes
+              </span>
+              {!isEditingNotes ? (
+                <button
+                  onClick={() => setIsEditingNotes(true)}
+                  className="font-label-sm text-label-sm text-primary hover:underline font-semibold cursor-pointer"
+                >
+                  Edit
+                </button>
+              ) : (
+                <button
+                  onClick={handleSaveNotes}
+                  className="font-label-sm text-label-sm text-tertiary hover:underline font-semibold cursor-pointer"
+                >
+                  Save
+                </button>
+              )}
+            </div>
+
+            {isEditingNotes ? (
+              <div className="flex flex-col gap-2">
+                <textarea
+                  rows={5}
+                  value={notesDraft}
+                  onChange={(e) => setNotesDraft(e.target.value)}
+                  className="w-full p-2.5 rounded-lg border border-[#cbd5e1] font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary-container"
+                />
+                <button
+                  onClick={handleSaveNotes}
+                  className="h-8 px-3 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold self-end cursor-pointer"
+                >
+                  Save Notes
+                </button>
+              </div>
+            ) : (
+              <p className="font-body-sm text-body-sm text-on-surface-variant whitespace-pre-wrap">
+                {application.notes || "No candidate notes recorded yet."}
+              </p>
+            )}
+          </div>
+
+          {/* Quick Match CTA Card */}
+          <div className="bg-surface-container-low rounded-xl border border-primary-fixed-dim p-space-lg flex flex-col gap-space-sm">
+            <div className="flex items-center gap-2 text-primary font-semibold font-label-md text-label-md">
+              <MaterialIcon name="bolt" className="text-[20px]" />
+              <span>Skill Match Readiness</span>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              Run deterministic matching against your declared profile skills to discover missing keywords and coursework recommendations.
+            </p>
+            <Link href={`/skill-analyzer?applicationId=${application.applicationId}`}>
+              <button className="w-full h-9 rounded-lg bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <span>Evaluate Skill Gap</span>
+                <MaterialIcon name="arrow_forward" className="text-[16px]" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Schedule Interview Modal */}
       <Modal
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
         title="Schedule Interview Round"
-        description={`Add an interview round for ${application.companyName}`}
+        description={`Record an upcoming evaluation round for ${application.companyName}.`}
       >
         <form onSubmit={handleScheduleInterview} className="space-y-4">
-          <Input
-            label="Round Name / Title"
-            placeholder="e.g. Technical Coding Round 1"
-            value={roundName}
-            onChange={(e) => setRoundName(e.target.value)}
-            required
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Round Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Technical Round 1 (System Design)"
+              value={roundName}
+              onChange={(e) => setRoundName(e.target.value)}
+              required
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
+            />
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Interview Date & Time"
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Interview Date & Time
+            </label>
+            <input
               type="datetime-local"
               value={interviewDate}
               onChange={(e) => setInterviewDate(e.target.value)}
               required
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
             />
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-                Mode
-              </label>
-              <select
-                value={interviewMode}
-                onChange={(e) =>
-                  setInterviewMode(e.target.value as "ONLINE" | "IN_PERSON" | "PHONE")
-                }
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="ONLINE">Online (Video)</option>
-                <option value="IN_PERSON">In Person</option>
-                <option value="PHONE">Phone Screen</option>
-              </select>
-            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Preparation Notes
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Interview Mode
+            </label>
+            <select
+              value={interviewMode}
+              onChange={(e) => setInterviewMode(e.target.value as "ONLINE" | "IN_PERSON" | "PHONE")}
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
+            >
+              <option value="ONLINE">Online (Google Meet / Zoom)</option>
+              <option value="IN_PERSON">In-Person (On-Campus)</option>
+              <option value="PHONE">Phone Screen</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Preparation / Debrief Notes
             </label>
             <textarea
               rows={3}
-              placeholder="Topics to revise, meeting link, interviewer details..."
+              placeholder="Interviewer names, topics to review..."
               value={interviewNotes}
               onChange={(e) => setInterviewNotes(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs focus:ring-2 focus:ring-indigo-500"
+              className="p-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-            <Button
+          <div className="flex justify-end gap-2 pt-2 border-t border-[#e2e8f0]">
+            <button
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => setIsInterviewModalOpen(false)}
+              className="h-9 px-4 rounded-lg border border-[#cbd5e1] text-on-surface font-label-md text-label-md"
             >
               Cancel
-            </Button>
-            <Button size="sm" type="submit">
-              Save Round
-            </Button>
+            </button>
+            <button
+              type="submit"
+              className="h-9 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold"
+            >
+              Save Schedule
+            </button>
           </div>
         </form>
       </Modal>

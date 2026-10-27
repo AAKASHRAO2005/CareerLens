@@ -18,7 +18,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
+            className="block font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant"
           >
             {label}
           </label>
@@ -28,8 +28,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           ref={ref}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-rose-500 focus-visible:ring-rose-500 focus-visible:border-rose-500",
+            "flex h-10 w-full rounded-lg border border-[#cbd5e1] bg-surface-container-lowest px-3 py-2 font-body-md text-body-md text-on-surface placeholder:text-outline transition-all focus-visible:outline-none focus-visible:border-primary-container focus-visible:ring-1 focus-visible:ring-primary-container disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-error focus-visible:ring-error focus-visible:border-error",
             className
           )}
           aria-invalid={!!error}
@@ -37,11 +37,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error ? (
-          <p id={`${inputId}-error`} className="text-xs text-rose-600 font-medium">
+          <p id={`${inputId}-error`} className="font-label-sm text-label-sm text-error font-medium">
             {error}
           </p>
         ) : helperText ? (
-          <p className="text-xs text-slate-500">{helperText}</p>
+          <p className="font-caption text-caption text-on-surface-variant">{helperText}</p>
         ) : null}
       </div>
     );

@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost" | "tertiary";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
@@ -23,20 +23,27 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none select-none";
+      "inline-flex items-center justify-center font-label-md rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-container disabled:opacity-50 disabled:pointer-events-none select-none";
 
     const variantStyles = {
-      primary: "bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm",
-      secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 active:bg-slate-300",
-      outline: "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100",
-      danger: "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm",
-      ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+      primary:
+        "bg-primary-container text-on-primary hover:bg-primary active:scale-[0.98] shadow-sm",
+      secondary:
+        "bg-surface-container-lowest text-on-surface border border-[#cbd5e1] hover:bg-surface-container-low active:scale-[0.98] shadow-sm",
+      outline:
+        "border border-outline-variant text-on-surface bg-surface-container-lowest hover:bg-surface-container-low active:scale-[0.98]",
+      danger:
+        "bg-error text-on-error hover:bg-[#93000a] active:scale-[0.98] shadow-sm",
+      ghost:
+        "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+      tertiary:
+        "bg-tertiary text-on-tertiary hover:bg-tertiary-container active:scale-[0.98] shadow-sm",
     };
 
     const sizeStyles = {
-      sm: "h-8 px-3 text-xs gap-1.5",
-      md: "h-9 px-4 text-sm gap-2",
-      lg: "h-11 px-6 text-base gap-2.5",
+      sm: "h-8 px-3 text-label-sm gap-1.5",
+      md: "h-9 px-4 text-label-md gap-2",
+      lg: "h-11 px-6 text-body-md gap-2.5",
     };
 
     return (

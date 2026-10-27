@@ -3,15 +3,7 @@
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  CheckCircle2,
-  AlertCircle,
-  Plus,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Alert } from "@/components/ui/Alert";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { normalizeSkill } from "@/lib/formatters";
 import { useMockData } from "@/features/mock-context";
 
@@ -19,14 +11,15 @@ function SkillAnalyzerContent() {
   const searchParams = useSearchParams();
   const initialAppId = searchParams.get("applicationId") || "";
 
-  const { applications, profile } = useMockData();
+  const { applications, profile, updateProfile } = useMockData();
   const [selectedAppId, setSelectedAppId] = useState<string>(
     initialAppId || (applications.length > 0 ? applications[0].applicationId : "")
   );
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   const selectedApplication = applications.find((app) => app.applicationId === selectedAppId);
 
-  // Deterministic Skill Matching Engine
+  // Deterministic Matching Engine
   const analysisResult = useMemo(() => {
     if (!selectedApplication || !selectedApplication.requiredSkills.length) {
       return {
@@ -42,7 +35,6 @@ function SkillAnalyzerContent() {
     const matched: string[] = [];
     const missing: string[] = [];
 
-    // Deduplicate required skills by normalized form
     const seenNormalized = new Set<string>();
     const distinctRequired: string[] = [];
     for (const req of selectedApplication.requiredSkills) {
@@ -74,202 +66,336 @@ function SkillAnalyzerContent() {
     };
   }, [selectedApplication, profile.skills]);
 
+  const handleAddSkillToProfile = (skill: string) => {
+    if (!profile.skills.includes(skill)) {
+      updateProfile({ skills: [...profile.skills, skill] });
+    }
+  };
+
+  const companyInitial = selectedApplication?.companyName
+    ? selectedApplication.companyName.slice(0, 2).toUpperCase()
+    : "TN";
+
+  // SVG circle calculations for 0-100 gauge
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset =
+    circumference - (analysisResult.matchPercentage / 100) * circumference;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col gap-space-lg w-full">
+      {/* 1. Header & Action Bar */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Skill-Gap Analyzer
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Evaluate your declared profile readiness against target job requirements with transparent, explainable matching.
+          <div className="flex items-center gap-space-xs text-outline font-label-sm text-label-sm uppercase tracking-wider mb-0.5">
+            <span>Career Readiness</span>
+            <span>&bull;</span>
+            <span>Placement Intelligence</span>
+          </div>
+          <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+            Skill Gap Analyzer
+          </h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Deterministic ATS keyword matching against institutional placement rubrics.
           </p>
         </div>
 
-        <Link href="/profile">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-            <Plus className="w-3.5 h-3.5" />
-            Update Profile Skills ({profile.skills.length})
-          </Button>
-        </Link>
-      </div>
-
-      <Alert variant="info" title="Deterministic Match Aid">
-        This is a rule-based skill comparison to assist your interview preparation, not a predictive hiring probability or black-box AI score.
-      </Alert>
-
-      {/* Target Application Selector */}
-      <Card>
-        <CardHeader className="py-4">
-          <CardTitle className="text-base">Select Target Role</CardTitle>
-          <CardDescription>
-            Choose any tracked application to calculate matched and missing skills in real-time.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {applications.length === 0 ? (
-            <div className="p-4 rounded-xl bg-slate-50 text-center text-xs text-slate-500">
-              No applications available.{" "}
-              <Link href="/applications/new" className="text-indigo-600 font-semibold underline">
-                Add an application
-              </Link>{" "}
-              to run skill analysis.
-            </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-3">
+        {/* Action Controls */}
+        <div className="flex items-center gap-space-sm flex-wrap">
+          {/* Target Application Dropdown */}
+          <div className="relative inline-flex items-center bg-surface-container-lowest rounded-xl border border-[#cbd5e1] shadow-sm px-3 py-1.5 min-w-[260px]">
+            <MaterialIcon name="corporate_fare" className="text-primary text-[20px] mr-2" />
+            <div className="flex flex-col flex-1 min-w-0 pr-2">
+              <span className="font-caption text-caption text-outline leading-none">
+                Target Application
+              </span>
               <select
                 value={selectedAppId}
                 onChange={(e) => setSelectedAppId(e.target.value)}
-                className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-transparent border-0 outline-none font-label-md text-label-md text-on-surface font-semibold truncate cursor-pointer p-0"
               >
                 {applications.map((app) => (
                   <option key={app.applicationId} value={app.applicationId}>
-                    {app.companyName} — {app.jobTitle} ({app.requiredSkills.length} skills required)
+                    {app.companyName} — {app.jobTitle}
                   </option>
                 ))}
               </select>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
 
-      {/* Analysis Results Display */}
+          <Link href="/profile">
+            <button className="h-9 px-space-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-label-md text-label-md font-medium rounded-xl border border-[#cbd5e1] shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+              <MaterialIcon name="tune" className="text-[18px] text-outline" />
+              <span>Edit Skills ({profile.skills.length})</span>
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* 2. Engine Disclaimer Banner */}
+      {!bannerDismissed && (
+        <div className="bg-surface-container-low rounded-xl p-space-md flex items-start gap-space-md border border-[#e2e8f0] shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center flex-shrink-0 text-primary shadow-sm mt-0.5">
+            <MaterialIcon name="verified" className="text-[20px]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-space-xs">
+              <span className="font-label-md text-label-md text-on-surface font-semibold">
+                Deterministic Match Protocol
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                No LLM Hallucinations
+              </span>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              This analysis objectively matches verifiable keywords and validated coursework against
+              parsed role parameters. It does not synthesize hiring likelihoods or subjective scores.
+            </p>
+          </div>
+          <button
+            onClick={() => setBannerDismissed(true)}
+            aria-label="Dismiss banner"
+            className="text-outline hover:text-on-surface p-1 rounded-lg transition-colors cursor-pointer"
+          >
+            <MaterialIcon name="close" className="text-[18px]" />
+          </button>
+        </div>
+      )}
+
+      {/* 3. 2-Column Split Layout */}
       {selectedApplication && (
-        <div className="space-y-6">
-          {/* Match Score Card */}
-          <Card className="bg-gradient-to-br from-white to-slate-50 border-slate-200">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                    Target Role
-                  </span>
-                  <h3 className="text-lg font-bold text-slate-900 mt-0.5">
-                    {selectedApplication.jobTitle} at {selectedApplication.companyName}
-                  </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+          {/* Main / Left Column (8 cols) */}
+          <div className="lg:col-span-8 flex flex-col gap-space-lg min-w-0">
+            {/* Target Role & Source Spec Card */}
+            <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] shadow-sm p-space-xl flex flex-col gap-space-md">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-sm border-b border-[#e2e8f0]">
+                <div className="flex items-center gap-space-md">
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary font-headline-md text-headline-md font-bold shadow-sm flex-shrink-0">
+                    {companyInitial}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-space-xs flex-wrap">
+                      <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                        {selectedApplication.companyName}
+                      </h2>
+                      <span className="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
+                        Tier 1 Placement
+                      </span>
+                    </div>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant">
+                      {selectedApplication.jobTitle} • {selectedApplication.location || "Hybrid"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                      Skill Alignment
+                <div className="flex items-center gap-space-sm bg-surface-container-low px-space-md py-1.5 rounded-lg border border-[#e2e8f0]">
+                  <MaterialIcon name="description" className="text-[18px] text-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-caption text-caption text-outline leading-tight">
+                      Active Profile
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black text-indigo-600">
-                      {analysisResult.hasRequiredSkills
-                        ? `${analysisResult.matchPercentage}%`
-                        : "N/A"}
+                    <span className="font-label-sm text-label-sm text-on-surface font-medium truncate max-w-[160px]">
+                      {profile.displayName || "Alex Rivera"}
                     </span>
                   </div>
+                  <MaterialIcon name="check_circle" className="text-[16px] text-tertiary" />
                 </div>
               </div>
 
-              {/* Progress Bar */}
-              {analysisResult.hasRequiredSkills ? (
-                <div className="space-y-2">
-                  <div className="w-full h-3 rounded-full bg-slate-200 overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 rounded-full ${
-                        analysisResult.matchPercentage >= 75
-                          ? "bg-emerald-500"
-                          : analysisResult.matchPercentage >= 50
-                          ? "bg-indigo-500"
-                          : "bg-amber-500"
-                      }`}
-                      style={{ width: `${analysisResult.matchPercentage}%` }}
-                    />
+              {/* Overall Match Summary Bar with Circular Gauge */}
+              <div className="p-space-lg rounded-xl bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+                <div className="flex items-center gap-space-lg">
+                  <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r={radius}
+                        className="text-surface-dim"
+                        strokeWidth="5"
+                        stroke="currentColor"
+                        fill="transparent"
+                      />
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r={radius}
+                        className="text-tertiary"
+                        strokeWidth="5"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="transparent"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="font-label-md text-label-md font-bold text-on-surface leading-none">
+                        {analysisResult.matchPercentage}%
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>
+
+                  <div className="flex flex-col">
+                    <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                      Match Readiness Score
+                    </span>
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">
                       {analysisResult.matchedSkills.length} of{" "}
-                      {selectedApplication.requiredSkills.length} required skills matched
-                    </span>
-                    <span className="font-semibold text-slate-700">
-                      Method: NORMALIZED_SKILL_MATCH
+                      {analysisResult.matchedSkills.length + analysisResult.missingSkills.length}{" "}
+                      core requirements confirmed in candidate profile.
                     </span>
                   </div>
                 </div>
-              ) : (
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
-                  This job application does not have any required skills recorded. Edit the application to add required skills for matching.
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Breakdown: Matched vs Missing */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Matched Skills */}
-            <Card className="border-emerald-200/80">
-              <CardHeader className="py-4 bg-emerald-50/40">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Matched Skills ({analysisResult.matchedSkills.length})</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-lg bg-surface-container-lowest text-primary font-label-sm text-label-sm font-semibold border border-primary-fixed-dim">
+                    {analysisResult.matchPercentage >= 75
+                      ? "High Alignment"
+                      : analysisResult.matchPercentage >= 50
+                      ? "Moderate Match"
+                      : "Action Required"}
+                  </span>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-4">
-                <p className="text-xs text-slate-500">
-                  Skills declared in your profile that directly satisfy the role requirements:
-                </p>
+              </div>
+
+              {/* Matched Verified Skills */}
+              <div className="flex flex-col gap-space-sm pt-space-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MaterialIcon name="check_circle" className="text-tertiary text-[20px]" />
+                    <span className="font-label-md text-label-md text-on-surface font-semibold">
+                      Matched Verified Skills ({analysisResult.matchedSkills.length})
+                    </span>
+                  </div>
+                  <span className="font-caption text-caption text-tertiary font-semibold">
+                    100% Verified
+                  </span>
+                </div>
+
                 {analysisResult.matchedSkills.length === 0 ? (
-                  <p className="text-xs text-slate-400 italic py-2">
-                    None of the required skills currently match your profile.
+                  <p className="font-body-sm text-body-sm text-on-surface-variant italic">
+                    No matching skills detected in your profile.
                   </p>
                 ) : (
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-2">
                     {analysisResult.matchedSkills.map((skill) => (
-                      <Badge
+                      <span
                         key={skill}
-                        variant="success"
-                        className="py-1 px-3 text-xs font-semibold"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant border border-tertiary-fixed-dim font-label-sm text-label-sm font-semibold"
                       >
-                        ✓ {skill}
-                      </Badge>
+                        <MaterialIcon name="done" className="text-[14px]" />
+                        <span>{skill}</span>
+                      </span>
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Missing Skills */}
-            <Card className="border-rose-200/80">
-              <CardHeader className="py-4 bg-rose-50/40">
+              {/* Missing ATS Keywords */}
+              <div className="flex flex-col gap-space-sm pt-space-md border-t border-[#e2e8f0]">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
-                    <AlertCircle className="w-4 h-4 text-rose-600" />
-                    <span>Missing Skills ({analysisResult.missingSkills.length})</span>
+                  <div className="flex items-center gap-2">
+                    <MaterialIcon name="warning" className="text-secondary text-[20px]" />
+                    <span className="font-label-md text-label-md text-on-surface font-semibold">
+                      Missing ATS Keywords / Core Prerequisites ({analysisResult.missingSkills.length})
+                    </span>
                   </div>
-                  <Link href="/profile">
-                    <Button variant="ghost" size="sm" className="text-xs h-7 px-2 text-indigo-600">
-                      Add to profile
-                    </Button>
-                  </Link>
+                  <span className="font-caption text-caption text-outline">
+                    Click to add to profile
+                  </span>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-4">
-                <p className="text-xs text-slate-500">
-                  Required skills not yet declared in your inventory (priority preparation focus):
-                </p>
+
                 {analysisResult.missingSkills.length === 0 ? (
-                  <p className="text-xs text-emerald-600 font-medium py-2">
-                    Great news! You have declared all required skills for this application.
-                  </p>
+                  <div className="p-3 rounded-lg bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-body-sm text-body-sm flex items-center gap-2">
+                    <MaterialIcon name="stars" className="text-[18px]" />
+                    <span>Complete match! All target skills are declared in your profile.</span>
+                  </div>
                 ) : (
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-2">
                     {analysisResult.missingSkills.map((skill) => (
-                      <Badge
+                      <button
                         key={skill}
-                        variant="danger"
-                        className="py-1 px-3 text-xs font-semibold"
+                        onClick={() => handleAddSkillToProfile(skill)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container border border-[#cbd5e1] hover:border-primary text-on-surface font-label-sm text-label-sm font-medium transition-colors cursor-pointer group"
+                        title="Click to add to your profile skills"
                       >
-                        ✕ {skill}
-                      </Badge>
+                        <MaterialIcon
+                          name="add"
+                          className="text-[14px] text-outline group-hover:text-primary"
+                        />
+                        <span>{skill}</span>
+                      </button>
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column (4 cols): Recommended Coursework & ATS Checklist */}
+          <div className="lg:col-span-4 flex flex-col gap-space-lg">
+            {/* Recommended Coursework */}
+            <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] shadow-sm p-space-xl flex flex-col gap-space-md">
+              <div className="flex items-center gap-2 pb-1 border-b border-[#e2e8f0]">
+                <MaterialIcon name="school" className="text-primary text-[20px]" />
+                <span className="font-label-md text-label-md text-on-surface font-semibold">
+                  Campus Curriculum Bridge
+                </span>
+              </div>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Recommended institutional courses mapped to these role requirements:
+              </p>
+
+              <div className="space-y-space-sm">
+                <div className="p-space-md rounded-lg bg-surface-container-low border border-[#e2e8f0] flex flex-col gap-0.5">
+                  <span className="font-label-sm text-label-sm text-primary font-bold">
+                    6.824 • Distributed Systems
+                  </span>
+                  <span className="font-caption text-caption text-on-surface-variant">
+                    Covers Raft consensus, RPC, fault tolerance, and cloud infra.
+                  </span>
+                </div>
+                <div className="p-space-md rounded-lg bg-surface-container-low border border-[#e2e8f0] flex flex-col gap-0.5">
+                  <span className="font-label-sm text-label-sm text-primary font-bold">
+                    6.033 • Computer Systems Engineering
+                  </span>
+                  <span className="font-caption text-caption text-on-surface-variant">
+                    Networking protocols, client-server models, security boundaries.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* ATS Compliance Checklist */}
+            <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] shadow-sm p-space-xl flex flex-col gap-space-md">
+              <div className="flex items-center gap-2 pb-1 border-b border-[#e2e8f0]">
+                <MaterialIcon name="fact_check" className="text-tertiary text-[20px]" />
+                <span className="font-label-md text-label-md text-on-surface font-semibold">
+                  Placement Checkpoints
+                </span>
+              </div>
+
+              <div className="space-y-2 text-body-sm font-body-sm">
+                <div className="flex items-center gap-2 text-on-surface">
+                  <MaterialIcon name="check" className="text-tertiary text-[18px]" />
+                  <span>Direct Campus Drive Applicant</span>
+                </div>
+                <div className="flex items-center gap-2 text-on-surface">
+                  <MaterialIcon name="check" className="text-tertiary text-[18px]" />
+                  <span>Standardized Single-Page PDF Format</span>
+                </div>
+                <div className="flex items-center gap-2 text-on-surface">
+                  <MaterialIcon name="check" className="text-tertiary text-[18px]" />
+                  <span>Verifiable Coursework Transcripts</span>
+                </div>
+                <div className="flex items-center gap-2 text-on-surface-variant">
+                  <MaterialIcon name="pending" className="text-outline text-[18px]" />
+                  <span>Technical Assessment Scheduled</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -279,7 +405,13 @@ function SkillAnalyzerContent() {
 
 export default function SkillAnalyzerPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading Skill Analyzer...</div>}>
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-outline font-label-md text-label-md">
+          Loading Skill Gap Analyzer...
+        </div>
+      }
+    >
       <SkillAnalyzerContent />
     </Suspense>
   );

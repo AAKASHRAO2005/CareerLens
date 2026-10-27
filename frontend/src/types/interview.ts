@@ -9,6 +9,8 @@ export interface Interview {
   interviewDate: string;
   mode: InterviewMode;
   notes?: string;
+  meetingLink?: string;
+  status?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -19,6 +21,8 @@ export interface CreateInterviewInput {
   interviewDate: string;
   mode: InterviewMode;
   notes?: string;
+  meetingLink?: string;
+  status?: string;
 }
 
 export interface UpdateInterviewInput {
@@ -26,4 +30,6 @@ export interface UpdateInterviewInput {
   interviewDate?: string;
   mode?: InterviewMode;
   notes?: string;
+  meetingLink?: string;
+  status?: string;
 }

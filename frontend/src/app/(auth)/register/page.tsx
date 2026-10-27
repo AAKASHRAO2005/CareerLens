@@ -6,16 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Compass, ArrowRight, UserCheck } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Alert } from "@/components/ui/Alert";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 
 const registerSchema = z
   .object({
     name: z.string().trim().min(2, "Full name must be at least 2 characters"),
-    email: z.string().trim().email("Please enter a valid email address"),
+    email: z.string().trim().email("Please enter a valid campus email address"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -33,7 +29,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [role, setRole] = useState<"student" | "recruiter">("student");
 
   const {
     register,
@@ -50,11 +46,19 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
-    setErrorMessage(null);
-
-    // Simulated auth delay for Phase 2 UI verification
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "careerlens_auth_session",
+        JSON.stringify({
+          isAuthenticated: true,
+          email: data.email,
+          displayName: data.name,
+          role,
+        })
+      );
+    }
     setTimeout(() => {
       setIsLoading(false);
       router.push("/dashboard");
@@ -63,107 +67,209 @@ export default function RegisterPage() {
 
   const fillDemoAccount = () => {
     setValue("name", "Akash Sharma", { shouldValidate: true });
-    setValue("email", "akash.new@student.university.edu", { shouldValidate: true });
-    setValue("password", "Placement@2026", { shouldValidate: true });
-    setValue("confirmPassword", "Placement@2026", { shouldValidate: true });
+    setValue("email", "akash.sharma@mit.edu", { shouldValidate: true });
+    setValue("password", "Placement@2025", { shouldValidate: true });
+    setValue("confirmPassword", "Placement@2025", { shouldValidate: true });
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-100">
-              <Compass className="w-6 h-6" />
-            </div>
-            <span className="font-extrabold text-slate-900 tracking-tight text-2xl">
-              Career<span className="text-indigo-600">Lens</span>
-            </span>
-          </Link>
-          <p className="text-sm text-slate-500">Create your account to start managing recruitment</p>
-        </div>
-
-        {/* Demo Helper Banner */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/70 border border-indigo-200/80 text-xs text-indigo-900">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 lg:p-12">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+        {/* Left Column: Platform Overview & Value Prop (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col gap-space-lg">
           <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-indigo-600" />
-            <span>Fast registration test?</span>
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm">
+              <MaterialIcon name="explore" className="text-[22px]" />
+            </div>
+            <span className="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">
+              CareerLens
+            </span>
+            <span className="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-primary font-medium border border-primary-fixed-dim">
+              Beta
+            </span>
           </div>
-          <button
-            type="button"
-            onClick={fillDemoAccount}
-            className="font-bold underline text-indigo-700 hover:text-indigo-900"
-          >
-            Pre-fill Form
-          </button>
+
+          <div className="space-y-2">
+            <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-semibold leading-tight">
+              Join Your Campus Placement Workspace
+            </h1>
+            <p className="font-body-md text-body-md text-on-surface-variant">
+              Centralized recruitment tracking, S3 encrypted resume storage, and deterministic skill
+              matching engineered for students and universities.
+            </p>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <div className="p-space-md rounded-xl bg-surface-container-lowest border border-[#e2e8f0] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-surface-container text-primary flex items-center justify-center flex-shrink-0">
+                <MaterialIcon name="school" className="text-[20px]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-label-md text-label-md text-on-surface font-semibold">
+                  Institutional Integration
+                </span>
+                <span className="font-caption text-caption text-on-surface-variant">
+                  Direct connection with university registrar & placement office
+                </span>
+              </div>
+            </div>
+
+            <div className="p-space-md rounded-xl bg-surface-container-lowest border border-[#e2e8f0] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center flex-shrink-0">
+                <MaterialIcon name="verified" className="text-[20px]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-label-md text-label-md text-on-surface font-semibold">
+                  No LLM Hallucinations
+                </span>
+                <span className="font-caption text-caption text-on-surface-variant">
+                  Transparent, verifiable keyword analysis against ATS parameters
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Create an account</CardTitle>
-            <CardDescription>Get started with placement intelligence and skill analysis</CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <CardContent className="space-y-4">
-              {errorMessage && (
-                <Alert variant="danger">
-                  {errorMessage}
-                </Alert>
-              )}
+        {/* Right Column: Registration Card (7 cols) */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] shadow-md p-space-xl sm:p-space-2xl flex flex-col gap-space-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+              <div>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-semibold">
+                  Candidate Registration
+                </h2>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  Create your verified student placement profile
+                </p>
+              </div>
 
-              <Input
-                label="Full Name"
-                placeholder="Akash Sharma"
-                error={errors.name?.message}
-                {...register("name")}
-              />
+              <button
+                type="button"
+                onClick={fillDemoAccount}
+                className="self-start sm:self-auto inline-flex items-center gap-1 px-3 py-1 bg-surface-container text-primary hover:bg-surface-container-high rounded-full font-label-sm text-label-sm font-semibold transition-colors cursor-pointer border border-primary-fixed-dim"
+              >
+                <MaterialIcon name="bolt" className="text-[16px]" />
+                <span>Pre-Fill Demo Data</span>
+              </button>
+            </div>
 
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="akash@example.com"
-                error={errors.email?.message}
-                {...register("email")}
-              />
+            {/* Role Switcher Tabs */}
+            <div className="grid grid-cols-2 p-1 bg-surface-container rounded-lg gap-1">
+              <button
+                type="button"
+                onClick={() => setRole("student")}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md font-label-md text-label-md transition-all cursor-pointer ${
+                  role === "student"
+                    ? "bg-surface-container-lowest text-primary font-semibold shadow-sm"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                <MaterialIcon name="school" className="text-[18px]" />
+                <span>Student / Candidate</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("recruiter")}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md font-label-md text-label-md transition-all cursor-pointer ${
+                  role === "recruiter"
+                    ? "bg-surface-container-lowest text-primary font-semibold shadow-sm"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                <MaterialIcon name="domain" className="text-[18px]" />
+                <span>Recruiter / Placement</span>
+              </button>
+            </div>
 
-              <Input
-                label="Password"
-                type="password"
-                placeholder="At least 8 chars, 1 uppercase, 1 digit"
-                error={errors.password?.message}
-                {...register("password")}
-              />
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-space-md">
+              <div className="flex flex-col gap-1.5">
+                <label className="font-label-md text-label-md text-on-surface font-semibold">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Akash Sharma"
+                  className="w-full h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                  {...register("name")}
+                />
+                {errors.name && (
+                  <span className="font-label-sm text-label-sm text-error font-medium">
+                    {errors.name.message}
+                  </span>
+                )}
+              </div>
 
-              <Input
-                label="Confirm Password"
-                type="password"
-                placeholder="Re-enter password"
-                error={errors.confirmPassword?.message}
-                {...register("confirmPassword")}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="font-label-md text-label-md text-on-surface font-semibold">
+                  Campus / Institutional Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="student@mit.edu"
+                  className="w-full h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <span className="font-label-sm text-label-sm text-error font-medium">
+                    {errors.email.message}
+                  </span>
+                )}
+              </div>
 
-              <p className="text-[11px] text-slate-500">
-                Accounts are secured via Amazon Cognito User Pools with strict user isolation.
-              </p>
-            </CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-label-md text-label-md text-on-surface font-semibold">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Min 8 chars, 1 uppercase, 1 digit"
+                    className="w-full h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                    {...register("password")}
+                  />
+                  {errors.password && (
+                    <span className="font-label-sm text-label-sm text-error font-medium">
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
 
-            <CardFooter className="flex flex-col gap-3 pt-2">
-              <Button type="submit" className="w-full" isLoading={isLoading}>
-                Register & Get Started
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-              <p className="text-center text-xs text-slate-500">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="font-semibold text-indigo-600 hover:text-indigo-700"
-                >
-                  Sign in
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-label-md text-label-md text-on-surface font-semibold">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Re-enter password"
+                    className="w-full h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container"
+                    {...register("confirmPassword")}
+                  />
+                  {errors.confirmPassword && (
+                    <span className="font-label-sm text-label-sm text-error font-medium">
+                      {errors.confirmPassword.message}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-10 mt-2 bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              >
+                <span>{isLoading ? "Creating Profile..." : "Create Placement Account"}</span>
+                <MaterialIcon name="arrow_forward" className="text-[18px]" />
+              </button>
+            </form>
+
+            <p className="text-center font-body-sm text-body-sm text-on-surface-variant pt-2 border-t border-[#e2e8f0]">
+              Already registered?{" "}
+              <Link href="/login" className="font-semibold text-primary hover:underline">
+                Sign in to Campus Account
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -2,109 +2,179 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Briefcase,
-  Sparkles,
-  CalendarCheck2,
-  FileText,
-  User,
-  Compass,
-} from "lucide-react";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { useMockData } from "@/features/mock-context";
 
 export interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  iconName: string;
+  badge?: string | number;
+  badgeColor?: string;
 }
-
-export const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Applications", href: "/applications", icon: Briefcase },
-  { label: "Skill Analyzer", href: "/skill-analyzer", icon: Sparkles },
-  { label: "Interviews", href: "/interviews", icon: CalendarCheck2 },
-  { label: "Resume Vault", href: "/resumes", icon: FileText },
-  { label: "Profile & Skills", href: "/profile", icon: User },
-];
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
-  const { profile } = useMockData();
+  const router = useRouter();
+  const { profile, applications, interviews } = useMockData();
+
+  const appCount = applications?.length || 18;
+  const upcomingInterviews = interviews?.filter((i) => i.status === "SCHEDULED")?.length || 2;
+
+  const navItems: NavItem[] = [
+    { label: "Dashboard", href: "/dashboard", iconName: "space_dashboard" },
+    {
+      label: "Applications",
+      href: "/applications",
+      iconName: "view_kanban",
+      badge: appCount,
+      badgeColor: "bg-surface-container text-on-surface-variant",
+    },
+    {
+      label: "Skill Gap Analyzer",
+      href: "/skill-analyzer",
+      iconName: "insights",
+    },
+    {
+      label: "Interviews",
+      href: "/interviews",
+      iconName: "event_available",
+      badge: `${upcomingInterviews} upcoming`,
+      badgeColor: "bg-tertiary-fixed text-on-tertiary-fixed-variant",
+    },
+    { label: "Resumes", href: "/resumes", iconName: "description" },
+    { label: "Profile", href: "/profile", iconName: "person" },
+  ];
+
+  const handleSignOut = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("careerlens_auth_session");
+      localStorage.removeItem("careerlens_auth_session");
+    }
+    router.push("/login");
+  };
 
   const initials = profile.displayName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+    ? profile.displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "AR";
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-white border-r border-slate-200">
-      {/* Brand Header */}
-      <div className="flex items-center h-16 px-6 border-b border-slate-100 gap-2.5">
-        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-600 text-white shadow-sm">
-          <Compass className="w-5 h-5" />
+    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-[#f8fafc] border-r border-[#e2e8f0] z-50 flex flex-col justify-between select-none">
+      <div className="flex flex-col flex-1 min-h-0">
+        {/* Brand Header */}
+        <div className="h-16 px-space-lg flex items-center gap-space-sm border-b border-[#e2e8f0]">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-bold shadow-sm flex-shrink-0">
+            <MaterialIcon name="explore" className="text-[20px]" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-space-xs">
+              <span className="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">
+                CareerLens
+              </span>
+              <span className="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-primary font-medium border border-primary-fixed-dim">
+                Beta
+              </span>
+            </div>
+            <span className="font-caption text-caption text-on-surface-variant truncate">
+              Campus Edition
+            </span>
+          </div>
         </div>
-        <div>
-          <span className="font-bold text-slate-900 tracking-tight text-lg">
-            Career<span className="text-indigo-600">Lens</span>
-          </span>
-          <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold -mt-1">
-            Placement Intel
-          </span>
+
+        {/* Section Label */}
+        <div className="px-space-md py-space-sm">
+          <div className="flex items-center justify-between px-space-sm py-1">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Workspace
+            </span>
+          </div>
         </div>
+
+        {/* Navigation Items */}
+        <nav className="flex-1 px-space-md space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center justify-between px-space-md py-2 rounded-xl transition-colors font-label-md text-label-md group",
+                  isActive
+                    ? "bg-surface-container-high text-primary font-semibold"
+                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                )}
+              >
+                <div className="flex items-center gap-space-md">
+                  <MaterialIcon
+                    name={item.iconName}
+                    className={cn(
+                      "text-[20px] transition-colors",
+                      isActive ? "text-primary" : "text-outline group-hover:text-on-surface"
+                    )}
+                  />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span
+                    className={cn(
+                      "font-label-sm text-label-sm px-1.5 py-0.5 rounded font-medium",
+                      item.badgeColor || "bg-surface-container text-on-surface-variant"
+                    )}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
-
-          return (
+      {/* Profile Footer */}
+      <div className="p-space-md border-t border-[#e2e8f0] bg-surface-container-lowest">
+        <div className="flex items-center justify-between gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+          <Link href="/profile" className="flex items-center gap-space-sm min-w-0">
+            <div className="w-9 h-9 rounded-full bg-primary-fixed text-primary font-bold flex items-center justify-center text-xs flex-shrink-0">
+              {initials}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-label-md text-label-md text-on-surface font-semibold truncate">
+                {profile.displayName || "Alex Rivera"}
+              </span>
+              <span className="font-caption text-caption text-on-surface-variant truncate">
+                {profile.university || "MIT"} • Class of 2025
+              </span>
+            </div>
+          </Link>
+          <div className="flex items-center gap-0.5 text-on-surface-variant">
             <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group",
-                isActive
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              )}
+              href="/profile"
+              aria-label="Settings"
+              className="p-1 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors"
             >
-              <Icon
-                className={cn(
-                  "w-4 h-4 transition-colors",
-                  isActive
-                    ? "text-indigo-600"
-                    : "text-slate-400 group-hover:text-slate-600"
-                )}
-              />
-              {item.label}
+              <MaterialIcon name="settings" className="text-[18px]" />
             </Link>
-          );
-        })}
-      </nav>
-
-      {/* Footer Info */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-        <Link href="/profile" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs group-hover:bg-indigo-200 transition-colors">
-            {initials || "ST"}
+            <button
+              onClick={handleSignOut}
+              aria-label="Logout"
+              className="p-1 rounded-lg hover:text-error hover:bg-error-container transition-colors cursor-pointer"
+            >
+              <MaterialIcon name="logout" className="text-[18px]" />
+            </button>
           </div>
-          <div className="truncate">
-            <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
-              {profile.displayName}
-            </p>
-            <p className="text-[11px] text-slate-500 truncate">{profile.email}</p>
-          </div>
-        </Link>
+        </div>
       </div>
     </aside>
   );

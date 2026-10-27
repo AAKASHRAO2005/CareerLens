@@ -2,25 +2,14 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
-import {
-  Briefcase,
-  Calendar,
-  Sparkles,
-  FileText,
-  Plus,
-  ArrowUpRight,
-  Clock,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { STATUS_MAP, formatDate, formatDateTime, ApplicationStatus } from "@/lib/formatters";
 import { useMockData } from "@/features/mock-context";
 
 export default function DashboardPage() {
-  const { applications, interviews, profile, resumes } = useMockData();
+  const { applications, interviews, profile } = useMockData();
 
-  // Aggregate metrics
+  // Metrics computation
   const metrics = useMemo(() => {
     const counts: Record<string, number> = {
       SAVED: 0,
@@ -38,19 +27,25 @@ export default function DashboardPage() {
       }
     });
 
-    const upcomingInterviews = interviews.filter(
+    const upcoming = interviews.filter(
       (int) => new Date(int.interviewDate).getTime() > Date.now()
     );
 
+    const totalApps = applications.length;
+    const interviewCount = counts.INTERVIEW + counts.ONLINE_ASSESSMENT;
+    const interviewRate = totalApps > 0 ? ((interviewCount / totalApps) * 100).toFixed(1) : "0.0";
+    const offerRate = totalApps > 0 ? ((counts.OFFER / totalApps) * 100).toFixed(1) : "0.0";
+
     return {
-      totalApplications: applications.length,
+      totalApplications: totalApps,
       byStatus: counts,
-      upcomingInterviewsCount: upcomingInterviews.length,
-      skillsCount: profile.skills.length,
-      resumesCount: resumes.length,
-      activePipelines: counts.APPLIED + counts.ONLINE_ASSESSMENT + counts.INTERVIEW,
+      upcomingInterviewsCount: upcoming.length,
+      offersCount: counts.OFFER,
+      awaitingCount: counts.APPLIED + counts.ONLINE_ASSESSMENT,
+      interviewRate,
+      offerRate,
     };
-  }, [applications, interviews, profile.skills, resumes]);
+  }, [applications, interviews]);
 
   // Upcoming interviews sorted
   const upcomingInterviews = useMemo(() => {
@@ -64,307 +59,436 @@ export default function DashboardPage() {
   const recentApplications = useMemo(() => {
     return [...applications]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 4);
+      .slice(0, 5);
   }, [applications]);
 
+  const firstName = profile.displayName ? profile.displayName.split(" ")[0] : "Alex";
+
   return (
-    <div className="space-y-8">
-      {/* Welcome Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Welcome back, {profile.displayName.split(" ")[0]} 👋
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Here is your live placement intelligence summary and recruitment pipeline progress.
+    <div className="flex flex-col gap-space-xl w-full">
+      {/* 1. Header Welcome & Action Bar */}
+      <section className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-lg bg-surface-container-lowest p-space-xl rounded-xl shadow-sm border border-[#e2e8f0]">
+        <div className="flex flex-col gap-space-xs">
+          <div className="flex items-center flex-wrap gap-space-sm">
+            <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+              Good morning, {firstName} 👋
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              Campus Placement Season 2025 • Phase 1 Active
+            </span>
+          </div>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Here is your career placement trajectory and active application status for today.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-space-sm">
           <Link href="/applications/new">
-            <Button>
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add Application
-            </Button>
+            <button className="h-9 px-space-md bg-primary-container hover:bg-primary text-on-primary rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer">
+              <MaterialIcon name="add" className="text-[18px]" />
+              <span>Add Application</span>
+            </button>
+          </Link>
+          <Link href="/skill-analyzer">
+            <button className="h-9 px-space-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-[#cbd5e1] rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
+              <MaterialIcon name="bolt" className="text-[18px] text-surface-tint" />
+              <span>Analyze Skills</span>
+            </button>
+          </Link>
+          <Link href="/resumes">
+            <button className="h-9 px-space-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-[#cbd5e1] rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
+              <MaterialIcon name="upload_file" className="text-[18px] text-outline" />
+              <span>Upload Resume</span>
+            </button>
+          </Link>
+          <Link href="/applications">
+            <button
+              aria-label="Export Summary"
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant border border-[#cbd5e1] shadow-sm transition-colors cursor-pointer"
+            >
+              <MaterialIcon name="ios_share" className="text-[20px]" />
+            </button>
           </Link>
         </div>
-      </div>
+      </section>
 
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:border-blue-200 transition-all">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Applications
-              </p>
-              <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+      {/* 2. Metric KPI Cards Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+        {/* Card 1 */}
+        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Total Applications
+            </span>
+            <span className="p-1.5 rounded-lg bg-surface-container text-primary">
+              <MaterialIcon name="send" className="text-[18px]" />
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-space-sm">
+              <span className="font-headline-xl text-headline-xl text-on-surface font-semibold tracking-tight">
                 {metrics.totalApplications}
-              </p>
-              <p className="text-[11px] text-blue-600 font-medium mt-0.5">
-                {metrics.activePipelines} active in pipeline
-              </p>
+              </span>
+              <span className="inline-flex items-center text-tertiary-container font-label-sm text-label-sm font-semibold bg-tertiary-fixed/60 px-1.5 py-0.5 rounded">
+                <MaterialIcon name="arrow_upward" className="text-[14px]" />
+                +3 this wk
+              </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Briefcase className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
+            {/* Sparkline SVG */}
+            <svg className="w-16 h-7 text-primary-container" fill="none" viewBox="0 0 64 24">
+              <path
+                d="M2 18 L16 14 L30 19 L44 9 L62 3"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              />
+              <circle cx="62" cy="3" fill="currentColor" r="2.5" />
+            </svg>
+          </div>
+        </div>
 
-        <Card className="hover:border-purple-200 transition-all">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Upcoming Interviews
-              </p>
-              <p className="text-2xl sm:text-3xl font-black text-purple-600 mt-1">
-                {metrics.upcomingInterviewsCount}
-              </p>
-              <p className="text-[11px] text-purple-500 font-medium mt-0.5">
-                {interviews.length} total recorded
-              </p>
+        {/* Card 2 */}
+        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Interviews Scheduled
+            </span>
+            <span className="p-1.5 rounded-lg bg-surface-container text-secondary">
+              <MaterialIcon name="event" className="text-[18px]" />
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-space-sm">
+              <span className="font-headline-xl text-headline-xl text-on-surface font-semibold tracking-tight">
+                {interviews.length}
+              </span>
+              <span className="inline-flex items-center text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold bg-secondary-fixed px-2 py-0.5 rounded">
+                {metrics.upcomingInterviewsCount} upcoming
+              </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Calendar className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
+            <span className="font-caption text-caption text-on-surface-variant font-medium">
+              Next: Upcoming
+            </span>
+          </div>
+        </div>
 
-        <Card className="hover:border-indigo-200 transition-all">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Skill Inventory
-              </p>
-              <p className="text-2xl sm:text-3xl font-black text-indigo-600 mt-1">
-                {metrics.skillsCount}
-              </p>
-              <p className="text-[11px] text-indigo-500 font-medium mt-0.5">
-                Ready for Gap Analysis
-              </p>
+        {/* Card 3 */}
+        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Offers Received
+            </span>
+            <span className="p-1.5 rounded-lg bg-surface-container text-tertiary">
+              <MaterialIcon name="verified" className="text-[18px]" />
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-space-sm">
+              <span className="font-headline-xl text-headline-xl text-tertiary font-semibold tracking-tight">
+                {metrics.offersCount}
+              </span>
+              <span className="inline-flex items-center text-on-tertiary-container font-label-sm text-label-sm font-semibold bg-tertiary-fixed px-2 py-0.5 rounded">
+                Accepted / Open
+              </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Sparkles className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
+            <span className="font-caption text-caption text-tertiary font-semibold">
+              {metrics.offerRate}% Conv.
+            </span>
+          </div>
+        </div>
 
-        <Card className="hover:border-emerald-200 transition-all">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Resumes Stored
-              </p>
-              <p className="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">
-                {metrics.resumesCount}
-              </p>
-              <p className="text-[11px] text-emerald-600 font-medium mt-0.5">
-                Encrypted in S3 Vault
-              </p>
+        {/* Card 4 */}
+        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-md hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Awaiting Response
+            </span>
+            <span className="p-1.5 rounded-lg bg-surface-container text-on-surface-variant">
+              <MaterialIcon name="hourglass_top" className="text-[18px]" />
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-space-sm">
+              <span className="font-headline-xl text-headline-xl text-on-surface font-semibold tracking-tight">
+                {metrics.awaitingCount}
+              </span>
+              <span className="inline-flex items-center text-on-surface-variant font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded">
+                Avg: 6 days
+              </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <FileText className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <span className="font-caption text-caption text-outline font-medium">In review</span>
+          </div>
+        </div>
+      </section>
 
-      {/* Recruitment Pipeline Status Breakdown */}
-      <Card>
-        <CardHeader className="py-4">
+      {/* 3. Visual Analytics & Pipeline Section (Funnel + Rate Badges) */}
+      <section className="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+          <div>
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Funnel Breakdown
+            </span>
+            <h2 className="font-headline-md text-headline-md text-on-surface">
+              Recruitment Pipeline Visualizer
+            </h2>
+          </div>
+          <div className="flex items-center gap-space-sm flex-wrap">
+            <span className="px-2.5 py-1 rounded bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold">
+              Interview Rate: {metrics.interviewRate}%
+            </span>
+            <span className="px-2.5 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold">
+              Offer Conversion: {metrics.offerRate}%
+            </span>
+          </div>
+        </div>
+
+        {/* Funnel Multi-segment Bar */}
+        <div className="flex flex-col gap-space-sm">
+          <div className="w-full h-3 rounded-full bg-surface-container-low overflow-hidden flex">
+            <div
+              className="h-full bg-outline-variant"
+              style={{ width: `${Math.max(5, (metrics.byStatus.SAVED / (metrics.totalApplications || 1)) * 100)}%` }}
+              title={`Saved: ${metrics.byStatus.SAVED}`}
+            />
+            <div
+              className="h-full bg-primary-fixed-dim"
+              style={{ width: `${Math.max(10, (metrics.byStatus.APPLIED / (metrics.totalApplications || 1)) * 100)}%` }}
+              title={`Applied: ${metrics.byStatus.APPLIED}`}
+            />
+            <div
+              className="h-full bg-secondary-container"
+              style={{ width: `${Math.max(5, (metrics.byStatus.ONLINE_ASSESSMENT / (metrics.totalApplications || 1)) * 100)}%` }}
+              title={`Assessments: ${metrics.byStatus.ONLINE_ASSESSMENT}`}
+            />
+            <div
+              className="h-full bg-secondary"
+              style={{ width: `${Math.max(5, (metrics.byStatus.INTERVIEW / (metrics.totalApplications || 1)) * 100)}%` }}
+              title={`Interview: ${metrics.byStatus.INTERVIEW}`}
+            />
+            <div
+              className="h-full bg-tertiary-fixed"
+              style={{ width: `${Math.max(5, (metrics.byStatus.OFFER / (metrics.totalApplications || 1)) * 100)}%` }}
+              title={`Offers: ${metrics.byStatus.OFFER}`}
+            />
+          </div>
+
+          {/* Funnel Legend & Counters */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-space-sm pt-space-xs text-center">
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Saved</span>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                {metrics.byStatus.SAVED}
+              </span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Applied</span>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                {metrics.byStatus.APPLIED}
+              </span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Assessments</span>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                {metrics.byStatus.ONLINE_ASSESSMENT}
+              </span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Technical</span>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                {metrics.byStatus.INTERVIEW}
+              </span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Offers</span>
+              <span className="font-headline-sm text-headline-sm text-tertiary font-semibold">
+                {metrics.byStatus.OFFER}
+              </span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-surface-container-low flex flex-col">
+              <span className="font-caption text-caption text-on-surface-variant">Rejected</span>
+              <span className="font-headline-sm text-headline-sm text-error font-semibold">
+                {metrics.byStatus.REJECTED}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Two Columns: Upcoming Interviews Timeline & Recent Applications */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+        {/* Left: Recent Applications Table (7 cols) */}
+        <div className="lg:col-span-7 bg-surface-container-lowest p-space-xl rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-lg">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Recruitment Pipeline Stage Distribution</CardTitle>
-            <span className="text-xs text-slate-400 font-medium">Real-time status breakdown</span>
+            <div>
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Applications Activity
+              </span>
+              <h3 className="font-headline-md text-headline-md text-on-surface">
+                Recent Submissions
+              </h3>
+            </div>
+            <Link
+              href="/applications"
+              className="font-label-sm text-label-sm text-primary hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>View all ({applications.length})</span>
+              <MaterialIcon name="arrow_forward" className="text-[16px]" />
+            </Link>
           </div>
-        </CardHeader>
-        <CardContent className="pt-2 pb-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Saved</span>
-              <span className="text-lg font-bold text-slate-700">{metrics.byStatus.SAVED}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-blue-600 block">Applied</span>
-              <span className="text-lg font-bold text-blue-700">{metrics.byStatus.APPLIED}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-amber-700 block">Assessment</span>
-              <span className="text-lg font-bold text-amber-800">{metrics.byStatus.ONLINE_ASSESSMENT}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-purple-600 block">Interview</span>
-              <span className="text-lg font-bold text-purple-700">{metrics.byStatus.INTERVIEW}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-emerald-600 block">Offer</span>
-              <span className="text-lg font-bold text-emerald-700">{metrics.byStatus.OFFER}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-200/60 text-center">
-              <span className="text-[10px] uppercase font-bold text-rose-600 block">Rejected</span>
-              <span className="text-lg font-bold text-rose-700">{metrics.byStatus.REJECTED}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Withdrawn</span>
-              <span className="text-lg font-bold text-gray-600">{metrics.byStatus.WITHDRAWN}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Main Two Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Recent Applications */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4">
-              <div>
-                <CardTitle className="text-base">Recent Job Applications</CardTitle>
-                <CardDescription>Track status changes and active recruitment rounds</CardDescription>
-              </div>
-              <Link href="/applications">
-                <Button variant="ghost" size="sm" className="text-xs gap-1">
-                  View all ({applications.length})
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </CardHeader>
+          <div className="divide-y divide-[#e2e8f0] -mx-space-xl">
+            {recentApplications.map((app) => {
+              const statusCfg = STATUS_MAP[app.status as ApplicationStatus] || STATUS_MAP.APPLIED;
+              const companyInitial = app.companyName ? app.companyName.slice(0, 2).toUpperCase() : "CO";
 
-            <CardContent className="p-0">
-              {recentApplications.length === 0 ? (
-                <div className="py-12 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <Briefcase className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-slate-800">No applications recorded yet</h4>
-                    <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                      Start tracking your recruitment process by adding your first job application.
-                    </p>
-                  </div>
-                  <Link href="/applications/new">
-                    <Button size="sm">Add First Application</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {recentApplications.map((app) => {
-                    const statusCfg = STATUS_MAP[app.status as ApplicationStatus] || STATUS_MAP.APPLIED;
-                    return (
-                      <div
-                        key={app.applicationId}
-                        className="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-slate-900">
-                              {app.companyName}
-                            </span>
-                            <span
-                              className={`text-[11px] px-2 py-0.5 rounded-full font-semibold border ${statusCfg.colorClass}`}
-                            >
-                              {statusCfg.label}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500">{app.jobTitle}</p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-slate-400 hidden sm:inline">
-                            {formatDate(app.applicationDate)}
-                          </span>
-                          <Link href={`/applications/${app.applicationId}`}>
-                            <Button variant="outline" size="sm" className="text-xs">
-                              View
-                            </Button>
-                          </Link>
-                        </div>
+              return (
+                <div
+                  key={app.applicationId}
+                  className="px-space-xl py-3.5 flex items-center justify-between hover:bg-surface-container-low/60 transition-colors"
+                >
+                  <div className="flex items-center gap-space-md min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center font-bold text-xs text-primary flex-shrink-0">
+                      {companyInitial}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-md text-label-md text-on-surface font-semibold truncate">
+                          {app.companyName}
+                        </span>
+                        <span
+                          className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full border ${statusCfg.colorClass}`}
+                        >
+                          {statusCfg.label}
+                        </span>
                       </div>
-                    );
-                  })}
+                      <span className="font-body-sm text-body-sm text-on-surface-variant truncate">
+                        {app.jobTitle}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-space-md">
+                    <span className="font-caption text-caption text-outline hidden sm:inline">
+                      {formatDate(app.applicationDate)}
+                    </span>
+                    <Link
+                      href={`/applications/${app.applicationId}`}
+                      className="h-8 px-3 rounded-lg border border-[#cbd5e1] hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <span>Review</span>
+                      <MaterialIcon name="chevron_right" className="text-[16px]" />
+                    </Link>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Right Column: Upcoming Interviews & Skill Teaser */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4">
-              <div>
-                <CardTitle className="text-base">Upcoming Interviews</CardTitle>
-                <CardDescription>Scheduled rounds & tests</CardDescription>
-              </div>
-              <Link href="/interviews">
-                <Button variant="ghost" size="sm" className="text-xs gap-1">
-                  All
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="p-0">
-              {upcomingInterviews.length === 0 ? (
-                <div className="py-10 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <p className="text-xs text-slate-500">No upcoming interviews.</p>
-                  <Link href="/interviews">
-                    <Button variant="outline" size="sm" className="text-xs">
-                      Schedule Round
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {upcomingInterviews.map((int) => {
-                    const linkedApp = applications.find((a) => a.applicationId === int.applicationId);
-                    return (
-                      <div key={int.interviewId} className="p-4 space-y-1.5 hover:bg-slate-50/50">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-900 truncate">
-                            {int.roundName}
-                          </p>
-                          <Badge variant="purple" size="sm">
-                            {int.mode}
-                          </Badge>
-                        </div>
-                        {linkedApp && (
-                          <p className="text-[11px] text-slate-600 font-medium">
-                            {linkedApp.companyName} &bull; {linkedApp.jobTitle}
-                          </p>
-                        )}
-                        <p className="text-[11px] text-purple-600 font-semibold flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatDateTime(int.interviewDate)}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Right: Upcoming Interviews Timeline (5 cols) */}
+        <div className="lg:col-span-5 bg-surface-container-lowest p-space-xl rounded-xl shadow-sm border border-[#e2e8f0] flex flex-col justify-between gap-space-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                Calendar Schedule
+              </span>
+              <h3 className="font-headline-md text-headline-md text-on-surface">
+                Upcoming Interviews
+              </h3>
+            </div>
+            <Link
+              href="/interviews"
+              className="font-label-sm text-label-sm text-primary hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>Schedule</span>
+              <MaterialIcon name="add" className="text-[16px]" />
+            </Link>
+          </div>
 
-          {/* Quick Skill-Gap Card */}
-          <Card className="bg-indigo-50/40 border-indigo-200/80">
-            <CardContent className="p-5 space-y-3">
-              <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                <span>Deterministic Skill Gap Analysis</span>
+          <div className="space-y-space-md">
+            {upcomingInterviews.length === 0 ? (
+              <div className="py-8 text-center text-on-surface-variant font-body-sm">
+                No upcoming interviews scheduled.
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Compare your declared skills ({profile.skills.length}) against target role descriptions with an explainable algorithm.
-              </p>
-              <Link href="/skill-analyzer">
-                <Button size="sm" className="w-full justify-center bg-indigo-600 hover:bg-indigo-700">
-                  Launch Skill Analyzer
-                  <ArrowUpRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+            ) : (
+              upcomingInterviews.map((int) => {
+                const linkedApp = applications.find(
+                  (a) => a.applicationId === int.applicationId
+                );
+                return (
+                  <div
+                    key={int.interviewId}
+                    className="p-space-md rounded-xl bg-surface-container-low border border-[#e2e8f0] flex flex-col gap-2 hover:border-[#cbd5e1] transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-label-md text-label-md text-on-surface font-semibold">
+                        {int.roundName}
+                      </span>
+                      <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-medium">
+                        {int.mode}
+                      </span>
+                    </div>
+                    {linkedApp && (
+                      <span className="font-body-sm text-body-sm text-on-surface-variant">
+                        {linkedApp.companyName} • {linkedApp.jobTitle}
+                      </span>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="font-caption text-caption text-primary font-semibold flex items-center gap-1">
+                        <MaterialIcon name="schedule" className="text-[16px]" />
+                        {formatDateTime(int.interviewDate)}
+                      </span>
+                      {int.meetingLink ? (
+                        <a
+                          href={int.meetingLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="h-7 px-2.5 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 hover:bg-primary transition-colors"
+                        >
+                          <MaterialIcon name="video_camera_front" className="text-[14px]" />
+                          <span>Join</span>
+                        </a>
+                      ) : (
+                        <Link
+                          href="/interviews"
+                          className="font-label-sm text-label-sm text-outline hover:text-on-surface"
+                        >
+                          View Details
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Quick Skill Analyzer Promotion */}
+          <div className="p-space-md rounded-xl bg-surface-container border border-primary-fixed-dim flex items-center justify-between gap-space-md">
+            <div className="flex items-center gap-space-sm min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-primary text-on-primary flex items-center justify-center flex-shrink-0">
+                <MaterialIcon name="insights" className="text-[20px]" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-label-md text-label-md text-on-surface font-semibold truncate">
+                  Skill Gap Evaluation
+                </span>
+                <span className="font-caption text-caption text-on-surface-variant truncate">
+                  Deterministic keyword matching
+                </span>
+              </div>
+            </div>
+            <Link
+              href="/skill-analyzer"
+              className="h-8 px-3 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 flex-shrink-0 hover:bg-on-primary-fixed-variant transition-colors"
+            >
+              <span>Test</span>
+              <MaterialIcon name="arrow_forward" className="text-[14px]" />
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

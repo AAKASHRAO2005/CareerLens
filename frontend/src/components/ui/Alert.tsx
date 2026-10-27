@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { AlertCircle, CheckCircle2, Info, AlertTriangle } from "lucide-react";
+import { MaterialIcon } from "./MaterialIcon";
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "info" | "success" | "warning" | "danger";
@@ -16,20 +16,20 @@ export const Alert: React.FC<AlertProps> = ({
 }) => {
   const variantConfig = {
     info: {
-      container: "bg-blue-50/80 border-blue-200 text-blue-900",
-      icon: <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />,
+      container: "bg-surface-container-low border-outline-variant text-on-surface",
+      icon: <MaterialIcon name="info" className="text-primary text-[20px] mt-0.5 flex-shrink-0" />,
     },
     success: {
-      container: "bg-emerald-50/80 border-emerald-200 text-emerald-900",
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />,
+      container: "bg-tertiary-fixed/30 border-tertiary-fixed-dim text-on-surface",
+      icon: <MaterialIcon name="check_circle" className="text-tertiary text-[20px] mt-0.5 flex-shrink-0" />,
     },
     warning: {
-      container: "bg-amber-50/80 border-amber-200 text-amber-900",
-      icon: <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />,
+      container: "bg-secondary-fixed/30 border-secondary-fixed-dim text-on-surface",
+      icon: <MaterialIcon name="warning" className="text-secondary text-[20px] mt-0.5 flex-shrink-0" />,
     },
     danger: {
-      container: "bg-rose-50/80 border-rose-200 text-rose-900",
-      icon: <AlertCircle className="w-5 h-5 text-rose-600 mt-0.5 flex-shrink-0" />,
+      container: "bg-error-container/60 border-error-container text-on-error-container",
+      icon: <MaterialIcon name="error" className="text-error text-[20px] mt-0.5 flex-shrink-0" />,
     },
   };
 
@@ -38,13 +38,13 @@ export const Alert: React.FC<AlertProps> = ({
   return (
     <div
       role="alert"
-      className={cn("flex items-start gap-3 p-4 rounded-xl border text-sm", container, className)}
+      className={cn("flex items-start gap-3 p-4 rounded-xl border text-body-sm", container, className)}
       {...props}
     >
       {icon}
       <div className="space-y-0.5">
-        {title && <h5 className="font-semibold leading-none">{title}</h5>}
-        <div className="text-sm opacity-90">{children}</div>
+        {title && <h5 className="font-label-md text-label-md font-semibold text-on-surface">{title}</h5>}
+        <div className="font-body-sm opacity-90">{children}</div>
       </div>
     </div>
   );

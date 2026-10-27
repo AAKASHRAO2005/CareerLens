@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import { MaterialIcon } from "./MaterialIcon";
 import { cn } from "@/lib/utils";
 
 export interface ModalProps {
@@ -48,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -58,29 +58,31 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          "relative w-full rounded-2xl bg-white p-6 shadow-2xl border border-slate-200/80 z-10 space-y-4 max-h-[90vh] overflow-y-auto",
+          "relative w-full rounded-xl bg-surface-container-lowest p-6 shadow-2xl border border-[#e2e8f0] z-10 space-y-4 max-h-[90vh] overflow-y-auto",
           maxWidthStyles[maxWidth]
         )}
       >
-        <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-start justify-between border-b border-[#e2e8f0] pb-3">
           <div>
             <h3
               id="modal-title"
-              className="text-lg font-bold text-slate-900 tracking-tight"
+              className="font-headline-sm text-headline-sm text-on-surface tracking-tight"
             >
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+              <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                {description}
+              </p>
             )}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-lg p-1 text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <MaterialIcon name="close" className="text-[20px]" />
           </button>
         </div>
 

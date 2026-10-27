@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container":"#eaedff","surface-tint":"#4d44e3","surface-container-high":"#e2e7ff","tertiary-container":"#006e4b","surface":"#faf8ff","surface-variant":"#dae2fd","on-tertiary":"#ffffff","surface-container-low":"#f2f3ff","on-surface":"#131b2e","on-secondary-fixed-variant":"#2f2ebe","outline":"#777587","surface-dim":"#d2d9f4","background":"#faf8ff","on-error-container":"#93000a","on-primary-fixed-variant":"#3323cc","on-tertiary-fixed-variant":"#005236","primary-fixed-dim":"#c3c0ff","outline-variant":"#c7c4d8","on-secondary-container":"#fffbff","on-primary-fixed":"#0f0069","on-surface-variant":"#464555","primary-container":"#4f46e5","primary":"#3525cd","surface-bright":"#faf8ff","secondary-container":"#6063ee","surface-container-lowest":"#ffffff","tertiary":"#005338","surface-container-highest":"#dae2fd","on-error":"#ffffff","tertiary-fixed-dim":"#4edea3","error-container":"#ffdad6","on-secondary":"#ffffff","error":"#ba1a1a","secondary-fixed":"#e1e0ff","on-primary":"#ffffff","secondary-fixed-dim":"#c0c1ff","tertiary-fixed":"#6ffbbe","secondary":"#4648d4","primary-fixed":"#e2dfff","inverse-surface":"#283044","on-primary-container":"#dad7ff","on-secondary-fixed":"#07006c","on-tertiary-fixed":"#002113","inverse-on-surface":"#eef0ff","inverse-primary":"#c3c0ff","on-background":"#131b2e","on-tertiary-container":"#67f4b7"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xs":"0.25rem","space-2xs":"0.125rem","margin":"1rem","gutter":"1rem","gutter-lg":"2rem","margin-lg":"2.5rem","space-md":"0.75rem","margin-md":"1.5rem","gutter-md":"1.5rem","space-3xl":"3rem","space-xl":"1.5rem","space-lg":"1rem","space-sm":"0.5rem","space-2xl":"2rem"},fontFamily:{"headline-sm":["Inter"],"headline-md":["Inter"],"label-md":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-xl":["Inter"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-lg":["Inter"],"headline-xl-mobile":["Inter"],"caption":["Inter"]},fontSize:{"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"caption":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"400"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[260px] bg-[#f8fafc] border-r border-[#e2e8f0] z-50 flex flex-col justify-between select-none"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-lg flex items-center gap-space-sm border-b border-[#e2e8f0]"><img alt="CareerLens Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WDeTGeZk0k6VMQGG2E5zyYw5P2g1nQ67OxFCXPW3tUXWp2mMpPrG7iFrohooc_kqL0o49ARQ96VVQCPjWQ93Dvi1G-GbvwDDUxPu4KJApcv-QKNalI5LtpKRKPmTdgykfqZR0lioPztcPUgZRRRas1JTolYMDNIsWqxnVfsIoVeKIQCaNqpRKFUskmmCMrOg3g-1Gcfy3ZdeHkVvpiEQpsiUsHrw62a1U6pqs0EF-ZSQ"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">CareerLens</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-primary font-medium border border-primary-fixed-dim">Beta</span></div><span class="font-caption text-caption text-on-surface-variant truncate">Campus Edition</span></div></div><div class="px-space-md py-space-sm"><div class="flex items-center justify-between px-space-sm py-1"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Workspace</span></div></div><nav class="flex-1 px-space-md space-y-1 overflow-y-auto" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center justify-between px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="dashboard" href="#"><span class="truncate">Dashboard</span></a><a class="flex items-center justify-between px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="applications" href="#"><span class="truncate">Applications</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">18</span></a><a class="flex items-center justify-between px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="skill-gap-analyzer" href="#"><span class="truncate">Skill Gap Analyzer</span></a><a class="flex items-center justify-between px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="interviews" href="#"><span class="truncate">Interviews</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-medium">2 upcoming</span></a><a aria-current="page" class="flex items-center justify-between px-space-md py-2 rounded-xl transition-colors bg-surface-container-high text-primary font-semibold" data-path="resumes" href="#"><span class="truncate">Resumes</span></a><a class="flex items-center justify-between px-space-md py-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="profile" href="#"><span class="truncate">Profile</span></a></nav></div><div class="p-space-md border-t border-[#e2e8f0] bg-surface-container-lowest"><div class="flex items-center justify-between gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-9 h-9 rounded-full object-cover ring-1 ring-outline-variant flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9SC9VaNpCUYtw0Ry7_XQZB5IwQ3AtrldcP29CCX2ZPvzkLpr0Qrx-WxQLbyPoSEMQTY1EXpjI6hIDxrtdLr5x0Ob61Q814qBvL2evcY15kcPSxrkEWTRwJj0iNa0B_0aloHkuQz055Ws7_T7GRxmBpTaD6aoEgJiw1TvTxMgteesZSH_c-kNUqA5uLqp7eEfub1Off1dWDWm3vWeKm9w5fOPd6K3zmvA1rBSXil60"/><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-on-surface font-semibold truncate">Alex Rivera</span><span class="font-caption text-caption text-on-surface-variant truncate">Class of 2025 • CS</span></div></div><div class="flex items-center gap-0.5 text-on-surface-variant"><button aria-label="Settings" class="p-1 rounded-lg hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[18px]">settings</span></button><button aria-label="Logout" class="p-1 rounded-lg hover:text-error hover:bg-error-container transition-colors"><span class="material-symbols-outlined text-[18px]">logout</span></button></div></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-[#ffffff] border-b border-[#e2e8f0] z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-lg flex-1 max-w-xl"><div class="flex items-center gap-space-sm w-full max-w-md h-9 px-3 rounded-lg border border-[#cbd5e1] bg-surface-container-lowest text-on-surface-variant focus-within:border-primary-container focus-within:ring-1 focus-within:ring-primary-container transition-all"><span class="material-symbols-outlined text-[18px] text-outline">search</span><input class="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant" placeholder="Search applications, skills, companies..." readonly="" type="text"/><kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 font-label-sm text-label-sm text-outline font-semibold bg-surface-container-low border border-outline-variant rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant text-on-surface-variant font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-primary"></span><span>MIT Tech Placement 2025</span></div><button class="h-9 px-space-md bg-primary-container hover:bg-primary text-on-primary rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-[18px]">add</span><span>Quick Add</span></button><div class="relative"><button aria-label="Notifications" class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#cbd5e1] hover:bg-surface-container-low text-on-surface-variant transition-colors relative"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button></div><div class="h-6 w-px bg-[#e2e8f0]"></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9SC9VaNpCUYtw0Ry7_XQZB5IwQ3AtrldcP29CCX2ZPvzkLpr0Qrx-WxQLbyPoSEMQTY1EXpjI6hIDxrtdLr5x0Ob61Q814qBvL2evcY15kcPSxrkEWTRwJj0iNa0B_0aloHkuQz055Ws7_T7GRxmBpTaD6aoEgJiw1TvTxMgteesZSH_c-kNUqA5uLqp7eEfub1Off1dWDWm3vWeKm9w5fOPd6K3zmvA1rBSXil60"/></div></header><main class="w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<div class="px-space-xl py-space-lg flex flex-col gap-space-lg max-w-[1440px] mx-auto w-full">
+<!-- Top Breadcrumb & Actions Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-2xs min-w-0">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="text-primary font-medium">Profile &amp; Verified Credentials</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary text-label-sm font-semibold ml-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            Registrar Signed
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Student Profile &amp; Placement Credentials</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-3xl">
+          Manage verified institutional credentials, coursework transcripts, cryptographic attestation, GitHub sync, and campus placement routing.
+        </p>
+</div>
+<div class="flex items-center flex-wrap gap-space-sm shrink-0">
+<button class="h-9 px-space-md bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-[0.98]" id="btn-export">
+<span class="material-symbols-outlined text-[17px] text-primary">download</span>
+<span>Export Portfolio</span>
+<span class="text-label-sm text-on-surface-variant bg-surface-container-lowest px-1.5 py-0.5 rounded">PDF/JSON</span>
+</button>
+<button class="h-9 px-space-md bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-[0.98]" id="btn-share">
+<span class="material-symbols-outlined text-[17px] text-primary">share</span>
+<span class="truncate max-w-[150px] sm:max-w-none">mit.edu/careerlens/arivera</span>
+<span class="material-symbols-outlined text-[15px] text-outline" id="copy-status">content_copy</span>
+</button>
+<button class="h-9 px-space-md bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-[0.98]">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+<span>Edit Profile</span>
+</button>
+</div>
+</div>
+<!-- Profile Hero Card (MIT EECS Theme) -->
+<div class="relative bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<!-- Decorative Banner Top Strip -->
+<div class="h-28 w-full bg-gradient-to-r from-primary to-secondary relative overflow-hidden flex items-end justify-end p-space-md">
+<div class="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+<div class="absolute -bottom-8 left-1/4 w-48 h-48 rounded-full bg-tertiary-fixed-dim/20 blur-xl pointer-events-none"></div>
+<div class="z-10 flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur text-on-surface shadow-sm font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-tertiary font-semibold" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-semibold text-on-surface">MIT Tech Placement 2025</span>
+<span class="text-outline-variant">•</span>
+<span class="text-tertiary font-semibold">Verified Candidate ID: #MIT-63-9481</span>
+</div>
+</div>
+<!-- Hero Main Content -->
+<div class="p-space-lg md:p-space-xl pt-0 relative flex flex-col md:flex-row gap-space-xl items-start justify-between">
+<!-- Left: Avatar + Core Bio -->
+<div class="flex flex-col sm:flex-row gap-space-lg items-start -mt-10 sm:-mt-12 z-10 min-w-0">
+<div class="relative group shrink-0">
+<img alt="Alex Rivera Profile" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-md bg-surface ring-4 ring-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9SC9VaNpCUYtw0Ry7_XQZB5IwQ3AtrldcP29CCX2ZPvzkLpr0Qrx-WxQLbyPoSEMQTY1EXpjI6hIDxrtdLr5x0Ob61Q814qBvL2evcY15kcPSxrkEWTRwJj0iNa0B_0aloHkuQz055Ws7_T7GRxmBpTaD6aoEgJiw1TvTxMgteesZSH_c-kNUqA5uLqp7eEfub1Off1dWDWm3vWeKm9w5fOPd6K3zmvA1rBSXil60"/>
+<span class="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center shadow-sm text-[14px]" title="Identity Verified by MIT Kerberos">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+</div>
+<div class="flex flex-col gap-1 min-w-0 mt-2 sm:mt-12">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Alex Rivera</h2>
+<span class="px-2 py-0.5 rounded-md bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">Course 6-3 (EECS)</span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">Class of 2025</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              B.S. in Computer Science &amp; Engineering • Minor in Mathematics
+            </p>
+<!-- Metadata Quick Pills -->
+<div class="flex items-center flex-wrap gap-x-space-md gap-y-1 mt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-flex items-center gap-1 font-semibold text-tertiary">
+<span class="material-symbols-outlined text-[16px]">school</span>
+                GPA: 4.9 / 5.0 (Dean's List 2022–2024)
+              </span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span>
+                Graduation: May 2025
+              </span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">location_on</span>
+                Cambridge, MA
+              </span>
+</div>
+<!-- Contact & Social Link Row -->
+<div class="flex items-center flex-wrap gap-space-sm mt-space-sm">
+<a class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="mailto:arivera@mit.edu">
+<span class="material-symbols-outlined text-[15px] text-primary">mail</span>
+<span>arivera@mit.edu</span>
+</a>
+<a class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="https://github.com/arivera" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[15px] text-on-surface">code</span>
+<span>github.com/arivera</span>
+</a>
+<a class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="https://linkedin.com/in/alex-rivera-cs" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[15px] text-secondary">share_reviews</span>
+<span>in/alex-rivera-cs</span>
+</a>
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">call</span>
+<span>+1 (617) 555-0194</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Right: Profile Completion & Readiness Ring -->
+<div class="w-full md:w-64 shrink-0 bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-sm mt-2 sm:mt-12">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Profile Verification</span>
+<span class="font-label-sm text-label-sm font-bold text-tertiary">96% Completed</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="relative w-12 h-12 shrink-0">
+<svg class="w-12 h-12 -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-tertiary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="96, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-label-sm text-label-sm font-bold text-on-surface">
+                96%
+              </div>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Full Clearance</span>
+<span class="font-caption text-caption text-on-surface-variant leading-snug">Registrar seal &amp; Identity cryptographic attestation verified</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 96%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Grid Workspace: Left (65%) & Right (35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: 65% (8/12) -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- 1. Verified Coursework & Academic Transcripts -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg md:p-space-xl flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed flex items-center justify-center text-primary font-semibold">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Verified Coursework &amp; Transcripts</h3>
+<span class="font-caption text-caption text-on-surface-variant">Validated through MIT Registrar Credential Attestation Protocol</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold shrink-0">
+<span class="material-symbols-outlined text-[14px]">lock_reset</span>
+<span>Registrar Validated: Oct 1, 2024</span>
+</div>
+</div>
+<!-- Courses Stack -->
+<div class="flex flex-col gap-space-sm">
+<!-- Course 1 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex flex-col items-center justify-center shrink-0 shadow-sm text-center">
+<span class="font-label-sm text-label-sm font-bold text-primary">6.824</span>
+<span class="text-[9px] uppercase font-semibold text-outline">EECS</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Distributed Systems</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Grade: A</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                    CSAIL Lab Attestation: Full Raft consensus, Multi-Paxos state replication, Fault-tolerant Key/Value store.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">task_alt</span>
+<span>CSAIL Attested</span>
+</span>
+</div>
+</div>
+<!-- Course 2 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex flex-col items-center justify-center shrink-0 shadow-sm text-center">
+<span class="font-label-sm text-label-sm font-bold text-primary">6.033</span>
+<span class="text-[9px] uppercase font-semibold text-outline">EECS</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Computer Systems Design</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Grade: A</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                    Modularity, fault tolerance, transaction isolation, cryptographic safety protocols, and DNS/BGP topologies.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">task_alt</span>
+<span>Registrar Signed</span>
+</span>
+</div>
+</div>
+<!-- Course 3 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex flex-col items-center justify-center shrink-0 shadow-sm text-center">
+<span class="font-label-sm text-label-sm font-bold text-primary">6.046</span>
+<span class="text-[9px] uppercase font-semibold text-outline">EECS</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Design &amp; Analysis of Algorithms</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm font-bold">Grade: A-</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                    Advanced DP, randomized data structures, network flows, linear programming relaxations, amortized bounds.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">task_alt</span>
+<span>Registrar Signed</span>
+</span>
+</div>
+</div>
+<!-- Course 4 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex flex-col items-center justify-center shrink-0 shadow-sm text-center">
+<span class="font-label-sm text-label-sm font-bold text-primary">6.031</span>
+<span class="text-[9px] uppercase font-semibold text-outline">EECS</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Elements of Software Construction</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Grade: A</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                    Static typing, specification invariants, concurrency safety, unit/integration verification pipelines.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">task_alt</span>
+<span>Registrar Signed</span>
+</span>
+</div>
+</div>
+<!-- Course 5 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex flex-col items-center justify-center shrink-0 shadow-sm text-center">
+<span class="font-label-sm text-label-sm font-bold text-secondary">18.06</span>
+<span class="text-[9px] uppercase font-semibold text-outline">MATH</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Linear Algebra</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Grade: A</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                    Spectral theorem, SVD decomposition, positive definite matrices, numerical stability computations.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">task_alt</span>
+<span>Registrar Signed</span>
+</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Verified Technical Skills & Accreditations -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg md:p-space-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary font-semibold">
+<span class="material-symbols-outlined text-[20px]">military_tech</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Technical Skill Matrix &amp; Accreditations</h3>
+<span class="font-caption text-caption text-on-surface-variant">Validated through coursework execution and standardized benchmarks</span>
+</div>
+</div>
+</div>
+<!-- Benchmark Badges -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold text-headline-sm">
+                  100
+                </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">HackerRank OA Certified</span>
+<span class="font-caption text-caption text-on-surface-variant">Data Structures, Graph Traversals, Systems</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-semibold">Perfect Score</span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed flex items-center justify-center text-primary font-bold text-headline-sm">
+                  2.1k
+                </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">LeetCode Knight Rating</span>
+<span class="font-caption text-caption text-on-surface-variant">Contest Rating: 2,140 • Top 4.2% Worldwide</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">Top 4.2%</span>
+</div>
+</div>
+<!-- Skill Categories -->
+<div class="flex flex-col gap-space-md pt-space-xs">
+<!-- Languages -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Languages</span>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Go</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary/10 text-tertiary text-label-sm font-medium">MIT 6.824 Lab</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Python</span>
+<span class="px-1.5 py-0.2 rounded bg-primary-fixed text-primary text-label-sm font-medium">Codility Gold</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">TypeScript / JavaScript</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant text-label-sm font-medium">Production</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">C++</span>
+<span class="text-caption text-outline">Systems</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">SQL</span>
+<span class="text-caption text-outline">PostgreSQL</span>
+</span>
+</div>
+</div>
+<!-- Systems & Infrastructure -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Systems &amp; Infrastructure</span>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Distributed Systems</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-medium">CSAIL Core</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Docker</span>
+<span class="text-caption text-outline">CI/CD Engine</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Kubernetes</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant text-label-sm font-medium">In Progress</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">PostgreSQL</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Redis</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">gRPC / Protocol Buffers</span>
+</span>
+</div>
+</div>
+<!-- Web & Frontend -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Web &amp; Full Stack Architecture</span>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">React 18+</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Next.js</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">Tailwind CSS</span>
+</span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="font-semibold">WebSockets / Server-Sent Events</span>
+</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Highlighted Projects & Verified Repositories -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg md:p-space-xl flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Verified Repositories &amp; Artifacts</h3>
+<span class="font-caption text-caption text-on-surface-variant">Synchronized with GitHub Enterprise &amp; MIT Athena Git</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Synced 2h ago • 14 repos scanned</span>
+</div>
+</div>
+<!-- Project Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Repo 1 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-[20px] text-primary">dns</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">star</span>
+<span>420</span>
+</div>
+</div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface">Deterministic Raft KV Store</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-3">
+                  Production-grade Raft consensus algorithm implementation handling split-brain elections, log compaction, snapshot streaming, and linearizable reads.
+                </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Go • CSAIL Lab 2-4</span>
+<a class="p-1 rounded hover:bg-surface-container-lowest text-on-surface-variant transition-colors" href="#" title="View Source">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Repo 2 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-[20px] text-secondary">speed</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">star</span>
+<span>186</span>
+</div>
+</div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface">Real-Time Telemetry Streamer</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-3">
+                  Low-latency metric aggregation pipeline processing 45k events/sec over bidirectional WebSockets into partitioned ClickHouse columnar buffers.
+                </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-secondary">Go • ClickHouse</span>
+<a class="p-1 rounded hover:bg-surface-container-lowest text-on-surface-variant transition-colors" href="#" title="View Source">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Repo 3 -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-[20px] text-tertiary">hub</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">star</span>
+<span>94</span>
+</div>
+</div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface">Placement Pipeline Tool</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-3">
+                Full-stack automation bot aggregating university job board postings with automated credential hashing and ATS optimization suggestions.
+              </p>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-tertiary">React • FastAPI</span>
+<a class="p-1 rounded hover:bg-surface-container-lowest text-on-surface-variant transition-colors" href="#" title="View Source">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: 35% (4/12) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- 1. Placement & Career Preferences -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">work</span>
+              Placement Intent
+            </h3>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold">Active Cycle</span>
+</div>
+<div class="p-space-sm rounded-xl bg-tertiary/10 flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-tertiary shrink-0">check_circle</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Open to Campus Offers</span>
+<span class="font-caption text-caption text-on-surface-variant">3 active loops (Stripe, Datadog, Snowflake)</span>
+</div>
+</div>
+<div class="space-y-3 font-body-sm text-body-sm">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Desired Roles</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-medium">Software Engineer I</span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-medium">Distributed Systems</span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-medium">Platform Infra</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Locations</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm font-semibold">Boston / Cambridge (1st)</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm">SF / Bay Area</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm">New York</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm">Remote</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Target Base</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">$130k - $155k</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Start Date</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">June 2025</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Work Authorization</span>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check</span>
+                US Citizen (No Visa Req.)
+              </span>
+</div>
+</div>
+</div>
+<!-- 2. Connected Accounts & Sync Integrations -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-secondary">sync_alt</span>
+              Connected Services
+            </h3>
+<span class="font-label-sm text-label-sm text-outline">4 Active</span>
+</div>
+<div class="space-y-2">
+<!-- Sync Item 1 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary font-bold text-[13px]">
+                  MIT
+                </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Kerberos &amp; Handshake</span>
+<span class="font-caption text-caption text-on-surface-variant">Auto-syncing campus slots</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-tertiary" title="Active"></span>
+</div>
+<!-- Sync Item 2 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">GitHub Enterprise</span>
+<span class="font-caption text-caption text-on-surface-variant">@arivera (840+ commits)</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-tertiary" title="Active"></span>
+</div>
+<!-- Sync Item 3 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">description</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Overleaf / LaTeX</span>
+<span class="font-caption text-caption text-on-surface-variant">Automated PDF compile</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-tertiary" title="Active"></span>
+</div>
+<!-- Sync Item 4 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Google Calendar</span>
+<span class="font-caption text-caption text-on-surface-variant">Interview scheduler linked</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-tertiary" title="Active"></span>
+</div>
+</div>
+</div>
+<!-- 3. Placement Officer & Advisor Endorsement -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-tertiary">rate_review</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Faculty Endorsement</h3>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm bg-surface-container" data-alt="Professional headshot of Dr. David Chen, senior MIT EECS professor and placement advisor, wearing a dark navy blazer and glasses in front of an academic engineering bookshelf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyXVSvr655ysW-3Wu4K5nGN27kqmqY9Nsyl_fhfL2G5OJdt0XIEf7elsfR1mZO8yxx9j7HxbFsV3UH3cua2ONb5n2VcPT4sUquSLcGNdRC22xWHeelnz-XHhpFaXglP9N1BF-MkZYEre158HRkjmhzMFUgcSnYpTrPbJCKPQZvOsHhOwcTiAARBv1SxyykEBtwkBKulb3u4SSF4j98aCMsv87Vdw9rs6mK7Dtf4dnr"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Dr. David Chen</span>
+<span class="font-caption text-caption text-on-surface-variant">EECS Placement Office &amp; CSAIL</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface italic">
+              “Alex performs in the top quartile of distributed systems architecture students. Recommended without reservation for Tier 1 campus partner engineering teams.”
+            </p>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary font-semibold pt-1">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+<span>Signed via MIT Faculty Portal</span>
+</div>
+</div>
+</div>
+<!-- 4. Privacy & Visibility Controls -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-outline">tune</span>
+            Privacy &amp; Recruiter Access
+          </h3>
+<div class="space-y-space-md">
+<!-- Toggle 1 -->
+<label class="flex items-center justify-between cursor-pointer group">
+<div class="flex flex-col pr-2">
+<span class="font-label-md text-label-md font-medium text-on-surface group-hover:text-primary transition-colors">Campus Placement Drive 2025</span>
+<span class="font-caption text-caption text-on-surface-variant">Visible to verified corporate partners</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<!-- Toggle 2 -->
+<label class="flex items-center justify-between cursor-pointer group">
+<div class="flex flex-col pr-2">
+<span class="font-label-md text-label-md font-medium text-on-surface group-hover:text-primary transition-colors">Course Transcripts Attestation</span>
+<span class="font-caption text-caption text-on-surface-variant">Direct transcript share with interviewers</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<!-- Toggle 3 -->
+<label class="flex items-center justify-between cursor-pointer group">
+<div class="flex flex-col pr-2">
+<span class="font-label-md text-label-md font-medium text-on-surface group-hover:text-primary transition-colors">Mask Compensation Band</span>
+<span class="font-caption text-caption text-on-surface-variant">Hide expectations from initial screening calls</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Ensure profile navigation item in shell gets highlighted
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('aside nav a');
+    navLinks.forEach(link => {
+      if (link.getAttribute('data-path') === 'profile') {
+        link.classList.remove('text-on-surface-variant');
+        link.classList.add('bg-surface-container-high', 'text-primary', 'font-semibold');
+      } else {
+        link.classList.remove('bg-surface-container-high', 'text-primary', 'font-semibold');
+        link.classList.add('text-on-surface-variant');
+      }
+    });
+
+    // Copy public profile link interactive feedback
+    const btnShare = document.getElementById('btn-share');
+    const copyIcon = document.getElementById('copy-status');
+    if (btnShare && copyIcon) {
+      btnShare.addEventListener('click', () => {
+        navigator.clipboard?.writeText('https://mit.edu/careerlens/arivera').then(() => {
+          copyIcon.textContent = 'done';
+          copyIcon.classList.add('text-tertiary');
+          setTimeout(() => {
+            copyIcon.textContent = 'content_copy';
+            copyIcon.classList.remove('text-tertiary');
+          }, 2000);
+        }).catch(() => {
+          copyIcon.textContent = 'done';
+          setTimeout(() => { copyIcon.textContent = 'content_copy'; }, 2000);
+        });
+      });
+    }
+
+    // Export button interactive feedback
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        const originalText = btnExport.innerHTML;
+        btnExport.innerHTML = '<span class="material-symbols-outlined text-[17px] animate-spin">sync</span><span>Preparing Package...</span>';
+        setTimeout(() => {
+          btnExport.innerHTML = '<span class="material-symbols-outlined text-[17px] text-tertiary">check</span><span>Package Ready</span>';
+          setTimeout(() => {
+            btnExport.innerHTML = originalText;
+          }, 2500);
+        }, 1200);
+      });
+    }
+  });
+</script></main></div></body></html>

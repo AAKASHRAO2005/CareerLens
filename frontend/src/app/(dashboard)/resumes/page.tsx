@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import {
-  UploadCloud,
-  FileText,
-  Download,
-  Trash2,
-  Loader2,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Alert } from "@/components/ui/Alert";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { formatFileSize, formatDate } from "@/lib/formatters";
 import { useMockData } from "@/features/mock-context";
 
@@ -44,9 +34,9 @@ export default function ResumesPage() {
       return;
     }
 
-    // Simulate S3 presigned URL direct upload for Phase 2 UI validation
+    // Direct upload simulation with progress
     setIsUploading(true);
-    setUploadProgress(20);
+    setUploadProgress(25);
 
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
@@ -69,8 +59,8 @@ export default function ResumesPage() {
         type: file.type || "application/pdf",
       });
 
-      setSuccessMessage(`Successfully uploaded and verified "${file.name}"!`);
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setSuccessMessage(`Successfully uploaded and encrypted "${file.name}" in AWS S3 vault.`);
+      setTimeout(() => setSuccessMessage(null), 3500);
     }, 800);
   };
 
@@ -79,7 +69,6 @@ export default function ResumesPage() {
     if (file) {
       handleFileProcess(file);
     }
-    // reset input value so re-uploading the same file works
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -96,7 +85,6 @@ export default function ResumesPage() {
   };
 
   const handleDownload = (fileName: string) => {
-    // Generate a downloadable sample PDF blob in browser to demonstrate functional download
     const dummyPdfContent = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000108 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n180\n%%EOF`;
     const blob = new Blob([dummyPdfContent], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
@@ -110,157 +98,182 @@ export default function ResumesPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-          Private Resume Vault
-        </h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Upload and manage versions of your resume securely stored in private Amazon S3 buckets.
-        </p>
+    <div className="flex flex-col gap-space-lg w-full">
+      {/* 1. Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+        <div>
+          <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+            Resume Vault
+          </h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Upload and manage encrypted resume versions directly connected to AWS S3.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container text-primary font-semibold border border-primary-fixed-dim">
+            AES-256 S3 Encryption
+          </span>
+        </div>
       </div>
 
-      <Alert variant="info" title="S3 Direct Upload Security">
-        Resumes are never stored publicly or in the database. They upload directly to encrypted S3 storage via short-lived presigned URLs and can only be downloaded by your authenticated account.
-      </Alert>
-
+      {/* Notifications */}
       {errorMessage && (
-        <Alert variant="danger" title="Upload Rejected">
-          {errorMessage}
-        </Alert>
+        <div className="p-space-md rounded-xl bg-error-container/60 border border-error text-on-error-container font-body-sm text-body-sm flex items-center gap-2">
+          <MaterialIcon name="error" className="text-[20px] text-error flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
       )}
 
       {successMessage && (
-        <Alert variant="success">
-          {successMessage}
-        </Alert>
+        <div className="p-space-md rounded-xl bg-tertiary-fixed/40 border border-tertiary-fixed-dim text-on-tertiary-fixed-variant font-body-sm text-body-sm flex items-center gap-2">
+          <MaterialIcon name="check_circle" className="text-[20px] text-tertiary flex-shrink-0" />
+          <span>{successMessage}</span>
+        </div>
       )}
 
-      {/* Upload Dropzone */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Upload New Resume Version</CardTitle>
-          <CardDescription>PDF format only &bull; Maximum file size: 5 MB</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileInputChange}
-            accept=".pdf,application/pdf"
-            className="hidden"
-          />
+      {/* 2. Direct S3 Upload Card */}
+      <div
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className="p-space-2xl rounded-xl bg-surface-container-lowest border-2 border-dashed border-[#cbd5e1] hover:border-primary transition-all text-center flex flex-col items-center justify-center gap-space-md shadow-sm"
+      >
+        <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary shadow-sm">
+          <MaterialIcon name="cloud_upload" className="text-[32px]" />
+        </div>
 
-          <div
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onClick={() => !isUploading && fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer bg-slate-50/50 hover:bg-indigo-50/20"
-          >
-            {isUploading ? (
-              <div className="space-y-3 py-4">
-                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto" />
-                <p className="text-sm font-semibold text-slate-800">
-                  Uploading directly to S3 via presigned URL... ({uploadProgress}%)
-                </p>
-                <div className="w-48 h-2 rounded-full bg-slate-200 mx-auto overflow-hidden">
-                  <div
-                    className="h-full bg-indigo-600 transition-all duration-200 rounded-full"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
-                  <UploadCloud className="w-6 h-6" />
-                </div>
-                <p className="text-sm font-semibold text-slate-800">
-                  Click to select PDF or drag and drop here
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Validated for PDF format &bull; Maximum 5 MB limit enforced
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        <div className="max-w-md space-y-1">
+          <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+            {isUploading ? "Uploading to Private S3 Vault..." : "Upload New Resume PDF"}
+          </h3>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            Drag and drop your single-page PDF document here, or browse local files.
+          </p>
+        </div>
 
-      {/* Resumes List */}
-      <Card>
-        <CardHeader className="py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base">Stored Resume Versions</CardTitle>
-              <CardDescription>Verified documents available for secure download</CardDescription>
+        {isUploading ? (
+          <div className="w-full max-w-xs space-y-2">
+            <div className="w-full bg-surface-container-low rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
             </div>
-            <Badge variant="default" size="sm">
-              {resumes.length} Document{resumes.length === 1 ? "" : "s"}
-            </Badge>
+            <span className="font-label-sm text-label-sm text-primary font-semibold">
+              {uploadProgress}% Uploaded
+            </span>
           </div>
-        </CardHeader>
+        ) : (
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="h-10 px-space-xl bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+            >
+              <MaterialIcon name="file_open" className="text-[18px]" />
+              <span>Choose PDF File</span>
+            </button>
+            <span className="font-caption text-caption text-outline">
+              Maximum file size: 5 MB (Standardized PDF format)
+            </span>
+          </div>
+        )}
+      </div>
 
-        <CardContent className="p-0">
-          {resumes.length === 0 ? (
-            <div className="py-12 text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                <FileText className="w-6 h-6" />
-              </div>
-              <p className="text-xs text-slate-500">No resumes uploaded yet.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {resumes.map((resume) => (
-                <div
-                  key={resume.resumeId}
-                  className="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5" />
+      {/* 3. Stored Resumes List */}
+      <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] shadow-sm p-space-xl flex flex-col gap-space-md">
+        <div className="flex items-center justify-between pb-1 border-b border-[#e2e8f0]">
+          <div>
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              Stored Versions
+            </span>
+            <h2 className="font-headline-md text-headline-md text-on-surface">
+              Verified Candidate Resumes ({resumes.length})
+            </h2>
+          </div>
+          <span className="font-caption text-caption text-outline">
+            S3 Object Lock Enabled
+          </span>
+        </div>
+
+        {resumes.length === 0 ? (
+          <div className="py-12 text-center text-outline font-body-sm">
+            No resume documents stored. Upload a PDF above to attach to campus job applications.
+          </div>
+        ) : (
+          <div className="divide-y divide-[#e2e8f0]">
+            {resumes.map((res) => (
+              <div
+                key={res.resumeId}
+                className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-space-md hover:bg-surface-container-low/40 px-space-md rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-space-md min-w-0">
+                  <div className="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center flex-shrink-0">
+                    <MaterialIcon name="picture_as_pdf" className="text-[24px]" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-label-md text-label-md text-on-surface font-semibold truncate">
+                        {res.fileName}
+                      </span>
+                      <span className="font-label-sm text-label-sm px-2 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-semibold">
+                        Verified EECS
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
-                        {resume.fileName}
-                      </p>
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
-                        <span>{formatFileSize(resume.sizeBytes)}</span>
-                        <span>&bull;</span>
-                        <span>Uploaded {formatDate(resume.createdAt)}</span>
-                        <span>&bull;</span>
-                        <span className="text-emerald-700 font-semibold">
-                          S3 Verified
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-3 text-caption font-caption text-outline mt-0.5">
+                      <span>{formatFileSize(res.sizeBytes)}</span>
+                      <span>&bull;</span>
+                      <span>Uploaded {formatDate(res.createdAt)}</span>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(resume.fileName)}
-                      className="text-xs gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5 text-indigo-600" />
-                      Download
-                    </Button>
-                    <button
-                      type="button"
-                      onClick={() => deleteResume(resume.resumeId)}
-                      className="p-2 rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                      title="Delete Resume"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                  <button
+                    onClick={() => handleDownload(res.fileName)}
+                    className="h-8 px-3 rounded-lg border border-[#cbd5e1] hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <MaterialIcon name="download" className="text-[16px]" />
+                    <span>Download</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Delete ${res.fileName} from resume vault?`)) {
+                        deleteResume(res.resumeId);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container transition-colors cursor-pointer"
+                    title="Delete resume"
+                  >
+                    <MaterialIcon name="delete" className="text-[18px]" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 4. S3 Security Notice */}
+      <div className="p-space-lg rounded-xl bg-surface-container-low border border-[#e2e8f0] flex items-start gap-space-md">
+        <MaterialIcon name="lock" className="text-primary text-[22px] flex-shrink-0 mt-0.5" />
+        <div className="space-y-0.5">
+          <h4 className="font-label-md text-label-md text-on-surface font-semibold">
+            Amazon S3 Private Bucket Architecture
+          </h4>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            CareerLens never publishes documents to public endpoints. Resumes are uploaded directly via
+            cryptographically signed, short-lived presigned URLs and access is restricted strictly to
+            your verified institutional identity.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

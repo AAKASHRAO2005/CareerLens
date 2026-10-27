@@ -9,7 +9,10 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
     | "warning"
     | "purple"
     | "success"
-    | "danger";
+    | "danger"
+    | "offer"
+    | "interview"
+    | "applied";
   size?: "sm" | "md";
 }
 
@@ -21,21 +24,24 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center font-medium rounded-full border transition-colors";
+    "inline-flex items-center font-label-sm rounded-full border transition-colors select-none";
 
   const variantStyles = {
-    default: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    neutral: "bg-slate-100 text-slate-700 border-slate-200",
-    info: "bg-blue-50 text-blue-700 border-blue-200",
-    warning: "bg-amber-50 text-amber-800 border-amber-200",
-    purple: "bg-purple-50 text-purple-700 border-purple-200",
-    success: "bg-emerald-50 text-emerald-800 border-emerald-200",
-    danger: "bg-rose-50 text-rose-700 border-rose-200",
+    default: "bg-surface-container text-primary border-primary-fixed-dim",
+    neutral: "bg-surface-container text-on-surface-variant border-[#e2e8f0]",
+    info: "bg-surface-container-high text-primary border-primary-fixed-dim",
+    warning: "bg-amber-50 text-amber-900 border-amber-200",
+    purple: "bg-surface-container-high text-secondary border-secondary-fixed",
+    success: "bg-tertiary-fixed text-on-tertiary-fixed-variant border-tertiary-fixed-dim",
+    danger: "bg-error-container text-on-error-container border-[#ffdad6]",
+    offer: "bg-tertiary-fixed text-on-tertiary-fixed-variant border-tertiary-fixed-dim",
+    interview: "bg-secondary-fixed text-on-secondary-fixed-variant border-[#c0c1ff]",
+    applied: "bg-surface-container-high text-primary border-primary-fixed-dim",
   };
 
   const sizeStyles = {
-    sm: "px-2 py-0.5 text-xs",
-    md: "px-2.5 py-1 text-xs font-semibold",
+    sm: "px-2 py-0.5 text-label-sm",
+    md: "px-2.5 py-1 text-label-sm font-semibold",
   };
 
   return (

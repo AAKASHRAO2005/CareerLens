@@ -10,12 +10,14 @@ export default function DashboardLayout({
 }) {
   return (
     <MockDataProvider>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-background">
         <Sidebar />
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <main className="flex-1 p-4 sm:p-6 md:p-8 md:pl-72 max-w-7xl w-full">
-            {children}
+          <main className="flex-1 w-full md:pl-[260px] pt-16 bg-background">
+            <div className="max-w-[1560px] mx-auto p-4 sm:p-6 lg:p-8">
+              {children}
+            </div>
           </main>
         </div>
       </div>

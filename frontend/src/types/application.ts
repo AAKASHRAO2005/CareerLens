@@ -9,6 +9,8 @@ export interface JobApplication {
   status: ApplicationStatus;
   applicationDate?: string;
   notes?: string;
+  location?: string;
+  salary?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -21,6 +23,8 @@ export interface CreateApplicationInput {
   status?: ApplicationStatus;
   applicationDate?: string;
   notes?: string;
+  location?: string;
+  salary?: string;
 }
 
 export interface UpdateApplicationInput {
@@ -31,4 +35,6 @@ export interface UpdateApplicationInput {
   status?: ApplicationStatus;
   applicationDate?: string;
   notes?: string;
+  location?: string;
+  salary?: string;
 }

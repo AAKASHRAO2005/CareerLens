@@ -3,20 +3,8 @@
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  Calendar,
-  Plus,
-  Clock,
-  Video,
-  MapPin,
-  Phone,
-  Trash2,
-  Building2,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { formatDateTime } from "@/lib/formatters";
 import { useMockData } from "@/features/mock-context";
 
@@ -39,13 +27,33 @@ function InterviewsContent() {
   const [interviewDate, setInterviewDate] = useState("");
   const [mode, setMode] = useState<"ONLINE" | "IN_PERSON" | "PHONE">("ONLINE");
   const [notes, setNotes] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTab, setFilterTab] = useState<"ALL" | "UPCOMING" | "PAST">("ALL");
 
-  // Sort interviews chronologically by interviewDate
+  // Sorted interviews
   const sortedInterviews = useMemo(() => {
-    return [...interviews].sort((a, b) => {
-      return new Date(a.interviewDate).getTime() - new Date(b.interviewDate).getTime();
-    });
-  }, [interviews]);
+    return [...interviews]
+      .filter((int) => {
+        const matchesQuery =
+          int.roundName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (int.notes && int.notes.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        const isUpcoming = new Date(int.interviewDate).getTime() > Date.now();
+        const matchesTab =
+          filterTab === "ALL"
+            ? true
+            : filterTab === "UPCOMING"
+            ? isUpcoming
+            : !isUpcoming;
+
+        return matchesQuery && matchesTab;
+      })
+      .sort((a, b) => new Date(a.interviewDate).getTime() - new Date(b.interviewDate).getTime());
+  }, [interviews, searchQuery, filterTab]);
+
+  const upcomingCount = interviews.filter(
+    (int) => new Date(int.interviewDate).getTime() > Date.now()
+  ).length;
 
   const handleCreateInterview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,230 +73,365 @@ function InterviewsContent() {
     setNotes("");
   };
 
-  const getModeIcon = (interviewMode: string) => {
-    switch (interviewMode) {
+  const getModeIconName = (m: string) => {
+    switch (m) {
       case "ONLINE":
-        return <Video className="w-4 h-4 text-purple-600" />;
+        return "videocam";
       case "IN_PERSON":
-        return <MapPin className="w-4 h-4 text-emerald-600" />;
+        return "apartment";
       case "PHONE":
-        return <Phone className="w-4 h-4 text-blue-600" />;
+        return "call";
       default:
-        return <Clock className="w-4 h-4 text-slate-500" />;
+        return "event";
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex flex-col gap-space-lg w-full">
+      {/* 1. Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight">
             Interview Schedules
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          </h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
             Track chronological interview rounds, test dates, preparation notes, and outcomes.
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-1.5" />
-          Schedule Interview
-        </Button>
+
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="h-9 px-space-md bg-primary-container hover:bg-primary text-on-primary rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <MaterialIcon name="add" className="text-[18px]" />
+          <span>Schedule Interview</span>
+        </button>
       </div>
 
+      {/* 2. Metric KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+        <div className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm flex items-center justify-between">
+          <div>
+            <span className="font-caption text-caption uppercase tracking-wider text-outline font-semibold">
+              Upcoming Rounds
+            </span>
+            <div className="font-headline-md text-headline-md text-secondary mt-1">
+              {upcomingCount} Ahead
+            </div>
+            <span className="font-caption text-caption text-secondary">Next: This week</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary">
+            <MaterialIcon name="calendar_month" className="text-[22px]" />
+          </div>
+        </div>
+
+        <div className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm flex items-center justify-between">
+          <div>
+            <span className="font-caption text-caption uppercase tracking-wider text-outline font-semibold">
+              Total Recorded
+            </span>
+            <div className="font-headline-md text-headline-md text-on-surface mt-1">
+              {interviews.length} Rounds
+            </div>
+            <span className="font-caption text-caption text-tertiary font-semibold">85.7% Advance Rate</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary">
+            <MaterialIcon name="verified" className="text-[22px]" />
+          </div>
+        </div>
+
+        <div className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm flex items-center justify-between">
+          <div>
+            <span className="font-caption text-caption uppercase tracking-wider text-outline font-semibold">
+              Active Pipelines
+            </span>
+            <div className="font-headline-md text-headline-md text-primary mt-1">
+              {applications.length}
+            </div>
+            <span className="font-caption text-caption text-on-surface-variant truncate">
+              Campus placement drives
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary">
+            <MaterialIcon name="hub" className="text-[22px]" />
+          </div>
+        </div>
+
+        <div className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm flex items-center justify-between">
+          <div>
+            <span className="font-caption text-caption uppercase tracking-wider text-outline font-semibold">
+              Readiness Index
+            </span>
+            <div className="font-headline-md text-headline-md text-tertiary mt-1">94%</div>
+            <span className="font-caption text-caption text-outline">Coursework Verified</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+            <MaterialIcon name="school" className="text-[22px]" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Filter & Controls Strip */}
+      <div className="p-space-md rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+        {/* Search */}
+        <div className="flex items-center gap-space-sm flex-1 max-w-md px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant focus-within:ring-1 focus-within:ring-primary-container transition-all">
+          <MaterialIcon name="search" className="text-[18px] text-outline" />
+          <input
+            type="text"
+            placeholder="Search interviewers, topics, round types..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-on-surface placeholder:text-outline"
+          />
+        </div>
+
+        {/* Status Tabs */}
+        <div className="flex items-center p-1 bg-surface-container-low rounded-lg font-label-sm text-label-sm">
+          <button
+            onClick={() => setFilterTab("ALL")}
+            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+              filterTab === "ALL"
+                ? "bg-surface-container-lowest text-primary font-semibold shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            All ({interviews.length})
+          </button>
+          <button
+            onClick={() => setFilterTab("UPCOMING")}
+            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+              filterTab === "UPCOMING"
+                ? "bg-surface-container-lowest text-primary font-semibold shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            Upcoming ({upcomingCount})
+          </button>
+          <button
+            onClick={() => setFilterTab("PAST")}
+            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+              filterTab === "PAST"
+                ? "bg-surface-container-lowest text-primary font-semibold shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            Past ({interviews.length - upcomingCount})
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Interview Cards Timeline */}
       {sortedInterviews.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto">
-              <Calendar className="w-7 h-7" />
-            </div>
-            <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-base font-semibold text-slate-800">
-                No interview rounds scheduled yet
-              </h3>
-              <p className="text-xs text-slate-500">
-                Link an interview round to any active job application to keep track of dates, meeting links, and prep notes.
-              </p>
-            </div>
-            <Button size="sm" onClick={() => setIsModalOpen(true)}>
-              <Plus className="w-4 h-4 mr-1.5" />
-              Schedule First Interview
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="bg-surface-container-lowest rounded-xl border border-[#e2e8f0] p-16 text-center space-y-3 shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-container text-outline flex items-center justify-center mx-auto">
+            <MaterialIcon name="event_busy" className="text-[24px]" />
+          </div>
+          <p className="font-label-md text-label-md text-on-surface font-semibold">
+            No interview rounds match this filter
+          </p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm mx-auto">
+            Schedule a new round or clear your search query to view all dates.
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="h-9 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold inline-flex items-center gap-1 cursor-pointer"
+          >
+            <MaterialIcon name="add" className="text-[16px]" />
+            <span>Schedule Round</span>
+          </button>
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-space-md">
           {sortedInterviews.map((int) => {
             const linkedApp = applications.find((a) => a.applicationId === int.applicationId);
             const isUpcoming = new Date(int.interviewDate).getTime() > Date.now();
 
             return (
-              <Card
+              <div
                 key={int.interviewId}
-                className="hover:border-purple-200 transition-all hover:shadow-sm"
+                className="p-space-lg rounded-xl bg-surface-container-lowest border border-[#e2e8f0] shadow-sm hover:border-[#cbd5e1] hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md"
               >
-                <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
-                        {getModeIcon(int.mode)}
-                        <span>{int.mode}</span>
-                      </div>
-                      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                <div className="flex items-start gap-space-md flex-1 min-w-0">
+                  <div className="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center flex-shrink-0">
+                    <MaterialIcon name={getModeIconName(int.mode)} className="text-[22px]" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">
                         {int.roundName}
-                      </h3>
+                      </span>
+                      <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-medium">
+                        {int.mode}
+                      </span>
                       {isUpcoming ? (
-                        <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-semibold">
                           Upcoming
                         </span>
                       ) : (
-                        <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                        <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-outline">
                           Completed
                         </span>
                       )}
                     </div>
 
                     {linkedApp && (
-                      <p className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                        <Link
-                          href={`/applications/${linkedApp.applicationId}`}
-                          className="hover:text-indigo-600 hover:underline"
-                        >
-                          {linkedApp.companyName} &bull; {linkedApp.jobTitle}
-                        </Link>
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <Clock className="w-3.5 h-3.5 text-purple-500" />
-                      <span className="font-medium text-slate-800">
-                        {formatDateTime(int.interviewDate)}
-                      </span>
-                    </div>
-
-                    {int.notes && (
-                      <div className="p-3 rounded-lg bg-slate-50 text-xs text-slate-600 italic">
-                        Prep notes: {int.notes}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
-                    {linkedApp && (
-                      <Link href={`/applications/${linkedApp.applicationId}`}>
-                        <Button variant="outline" size="sm" className="text-xs">
-                          View Application
-                        </Button>
+                      <Link
+                        href={`/applications/${linkedApp.applicationId}`}
+                        className="font-body-sm text-body-sm text-primary hover:underline font-medium mt-0.5 truncate"
+                      >
+                        {linkedApp.companyName} • {linkedApp.jobTitle}
                       </Link>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => deleteInterview(int.interviewId)}
-                      className="p-2 rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                      title="Delete Interview Record"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    <span className="font-caption text-caption text-outline flex items-center gap-1 mt-1">
+                      <MaterialIcon name="schedule" className="text-[14px]" />
+                      {formatDateTime(int.interviewDate)}
+                    </span>
+
+                    {int.notes && (
+                      <p className="font-body-sm text-body-sm text-on-surface-variant italic mt-1">
+                        “{int.notes}”
+                      </p>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Card Actions */}
+                <div className="flex items-center gap-space-sm self-end md:self-center flex-shrink-0">
+                  {int.meetingLink ? (
+                    <a
+                      href={int.meetingLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-8 px-3 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <MaterialIcon name="videocam" className="text-[16px]" />
+                      <span>Join Call</span>
+                    </a>
+                  ) : null}
+
+                  {linkedApp && (
+                    <Link
+                      href={`/applications/${linkedApp.applicationId}`}
+                      className="h-8 px-3 rounded-lg border border-[#cbd5e1] hover:bg-surface-container text-on-surface font-label-sm text-label-sm font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <span>Review App</span>
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      if (confirm(`Remove ${int.roundName}?`)) {
+                        deleteInterview(int.interviewId);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container transition-colors cursor-pointer"
+                    title="Delete interview"
+                  >
+                    <MaterialIcon name="delete" className="text-[18px]" />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
       )}
 
-      {/* Modal: Schedule Interview */}
+      {/* Schedule Interview Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Schedule Interview Round"
-        description="Record round details and preparation notes for your interview."
+        description="Record an upcoming company assessment or technical interview."
       >
         <form onSubmit={handleCreateInterview} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Linked Job Application
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Associated Job Application
             </label>
-            {applications.length === 0 ? (
-              <p className="text-xs text-rose-600">
-                You have no applications. Create an application first before scheduling an interview.
-              </p>
-            ) : (
-              <select
-                value={selectedAppId}
-                onChange={(e) => setSelectedAppId(e.target.value)}
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              >
-                {applications.map((app) => (
-                  <option key={app.applicationId} value={app.applicationId}>
-                    {app.companyName} — {app.jobTitle}
-                  </option>
-                ))}
-              </select>
-            )}
+            <select
+              value={selectedAppId}
+              onChange={(e) => setSelectedAppId(e.target.value)}
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
+              required
+            >
+              {applications.map((app) => (
+                <option key={app.applicationId} value={app.applicationId}>
+                  {app.companyName} — {app.jobTitle}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <Input
-            label="Round Name / Title"
-            placeholder="e.g. Technical Coding Round 1, System Design, HR"
-            value={roundName}
-            onChange={(e) => setRoundName(e.target.value)}
-            required
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Round Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Coding Assessment, System Architecture"
+              value={roundName}
+              onChange={(e) => setRoundName(e.target.value)}
+              required
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
+            />
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Interview Date & Time"
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Date & Time
+            </label>
+            <input
               type="datetime-local"
               value={interviewDate}
               onChange={(e) => setInterviewDate(e.target.value)}
               required
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
             />
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-                Mode
-              </label>
-              <select
-                value={mode}
-                onChange={(e) =>
-                  setMode(e.target.value as "ONLINE" | "IN_PERSON" | "PHONE")
-                }
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="ONLINE">Online (Video)</option>
-                <option value="IN_PERSON">In Person</option>
-                <option value="PHONE">Phone Screen</option>
-              </select>
-            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
+              Interview Mode
+            </label>
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as "ONLINE" | "IN_PERSON" | "PHONE")}
+              className="h-10 px-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
+            >
+              <option value="ONLINE">Online (Google Meet / Zoom)</option>
+              <option value="IN_PERSON">In-Person (On-Campus)</option>
+              <option value="PHONE">Phone Screen</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface font-semibold">
               Preparation Notes
             </label>
             <textarea
               rows={3}
-              placeholder="Meeting link, interviewers, concepts to revise..."
+              placeholder="Key concepts to study, questions for interviewer..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-xs focus:ring-2 focus:ring-indigo-500"
+              className="p-3 rounded-lg border border-[#cbd5e1] font-body-md text-body-md"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-            <Button
+          <div className="flex justify-end gap-2 pt-2 border-t border-[#e2e8f0]">
+            <button
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => setIsModalOpen(false)}
+              className="h-9 px-4 rounded-lg border border-[#cbd5e1] text-on-surface font-label-md text-label-md"
             >
               Cancel
-            </Button>
-            <Button size="sm" type="submit" disabled={applications.length === 0}>
-              Save Round
-            </Button>
+            </button>
+            <button
+              type="submit"
+              className="h-9 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold"
+            >
+              Save Schedule
+            </button>
           </div>
         </form>
       </Modal>
@@ -298,7 +441,13 @@ function InterviewsContent() {
 
 export default function InterviewsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading Interviews...</div>}>
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-outline font-label-md text-label-md">
+          Loading Interviews...
+        </div>
+      }
+    >
       <InterviewsContent />
     </Suspense>
   );
