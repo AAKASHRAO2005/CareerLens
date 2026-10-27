@@ -1,0 +1,397 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CareerLens - Placement Intelligence Platform
+  Production-minded AWS Serverless Architecture (No EC2)
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        DYNAMODB_TABLE_NAME: !Ref CareerLensDataTable
+        S3_RESUME_BUCKET: !Ref ResumeBucket
+        APP_ENV: production
+        LOG_LEVEL: INFO
+
+Resources:
+  # ============================================================================
+  # 1. Amazon Cognito Authentication
+  # ============================================================================
+  CareerLensUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: CareerLensUserPool
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+
+  CareerLensUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: CareerLensWebClient
+      UserPoolId: !Ref CareerLensUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+      PreventUserExistenceErrors: ENABLED
+
+  # ============================================================================
+  # 2. Amazon API Gateway HTTP API with JWT Authorizer
+  # ============================================================================
+  CareerLensHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: CareerLensHttpApi
+      CorsConfiguration:
+        AllowOrigins:
+          - "http://localhost:3000"
+          - "https://*.amplifyapp.com"
+        AllowHeaders:
+          - Authorization
+          - Content-Type
+          - x-amz-date
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - DELETE
+          - OPTIONS
+        MaxAge: 600
+      Auth:
+        DefaultAuthorizer: CognitoJwtAuthorizer
+        Authorizers:
+          CognitoJwtAuthorizer:
+            IdentitySource: "$request.header.Authorization"
+            JwtConfiguration:
+              issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${CareerLensUserPool}"
+              audience:
+                - !Ref CareerLensUserPoolClient
+
+  # ============================================================================
+  # 3. Amazon DynamoDB Single-Table Design
+  # ============================================================================
+  CareerLensDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CareerLensData
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+        - AttributeName: GSI2PK
+          AttributeType: S
+        - AttributeName: GSI2SK
+          AttributeType: S
+        - AttributeName: GSI3PK
+          AttributeType: S
+        - AttributeName: GSI3SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2PK
+              KeyType: HASH
+            - AttributeName: GSI2SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI3
+          KeySchema:
+            - AttributeName: GSI3PK
+              KeyType: HASH
+            - AttributeName: GSI3SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # ============================================================================
+  # 4. Amazon S3 Private Resume Storage
+  # ============================================================================
+  ResumeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "careerlens-resumes-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - PUT
+              - GET
+            AllowedOrigins:
+              - "http://localhost:3000"
+              - "https://*.amplifyapp.com"
+            MaxAge: 300
+
+  # ============================================================================
+  # 5. AWS Lambda Handlers
+  # ============================================================================
+
+  # Public Health Check
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/health.handler
+      Events:
+        HealthCheck:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/health
+            Method: GET
+            Auth:
+              Authorizer: NONE
+
+  # Profile API (GET & PATCH)
+  ProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/profile.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+      Events:
+        GetProfile:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/profile
+            Method: GET
+        PatchProfile:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/profile
+            Method: PATCH
+
+  # Applications API (CRUD, GSI status filter, cursor pagination)
+  ApplicationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/applications.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+      Events:
+        ListApplications:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications
+            Method: GET
+        CreateApplication:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications
+            Method: POST
+        GetApplication:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications/{applicationId}
+            Method: GET
+        UpdateApplication:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications/{applicationId}
+            Method: PATCH
+        DeleteApplication:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications/{applicationId}
+            Method: DELETE
+
+  # Skill-Gap Analysis API (POST /v1/applications/{applicationId}/skill-analysis)
+  SkillAnalysisFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/skill-analysis.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+      Events:
+        AnalyzeSkills:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/applications/{applicationId}/skill-analysis
+            Method: POST
+
+  # Dashboard Analytics Summary API (GET /v1/dashboard/summary)
+  DashboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/dashboard.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+      Events:
+        GetDashboardSummary:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/dashboard/summary
+            Method: GET
+
+  # Interviews API (CRUD, GSI3 chronological querying, application ownership validation)
+  InterviewsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/interviews.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+      Events:
+        ListInterviews:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/interviews
+            Method: GET
+        CreateInterview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/interviews
+            Method: POST
+        GetInterview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/interviews/{interviewId}
+            Method: GET
+        UpdateInterview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/interviews/{interviewId}
+            Method: PATCH
+        DeleteInterview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/interviews/{interviewId}
+            Method: DELETE
+
+  # Secure Resume Storage API (S3 Presigned URLs, HeadObject verification, Private Bucket)
+  ResumesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/dist/
+      Handler: handlers/resumes.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CareerLensDataTable
+        - S3CrudPolicy:
+            BucketName: !Ref ResumeBucket
+      Events:
+        CreateUploadIntent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/resumes/upload-intent
+            Method: POST
+        ConfirmUpload:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/resumes/{resumeId}/confirm
+            Method: POST
+        ListResumes:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/resumes
+            Method: GET
+        GetDownloadUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/resumes/{resumeId}/download-url
+            Method: GET
+        DeleteResume:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CareerLensHttpApi
+            Path: /v1/resumes/{resumeId}
+            Method: DELETE
+
+Outputs:
+  ApiEndpoint:
+    Description: "Base HTTP API endpoint URL"
+    Value: !Sub "https://${CareerLensHttpApi}.execute-api.${AWS::Region}.amazonaws.com/v1"
+  CognitoUserPoolId:
+    Description: "Cognito User Pool ID"
+    Value: !Ref CareerLensUserPool
+  CognitoClientId:
+    Description: "Cognito User Pool App Client ID"
+    Value: !Ref CareerLensUserPoolClient
+  DynamoDBTableName:
+    Description: "DynamoDB single-table name"
+    Value: !Ref CareerLensDataTable
+  S3ResumeBucketName:
+    Description: "Private S3 bucket name"
+    Value: !Ref ResumeBucket
